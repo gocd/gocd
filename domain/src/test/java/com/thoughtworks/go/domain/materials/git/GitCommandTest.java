@@ -47,12 +47,12 @@ public class GitCommandTest {
     class BasicCloneIntegration extends GitCommandIntegrationTestBase {
 
         @Test
-        void shouldCloneFromMasterWhenNoBranchIsSpecified() {
+        void shouldCloneFromMainWhenNoBranchIsSpecified() {
             InMemoryStreamConsumer output = inMemoryConsumer();
             git.clone(output, repoUrl);
             CommandLine commandLine = CommandLine.createCommandLine("git").withEncoding(UTF_8).withArg("branch").withWorkingDir(gitLocalRepoDir);
             commandLine.run(output, null);
-            assertEquals("* master", output.getStdOut());
+            assertEquals("* main", output.getStdOut());
         }
 
         @Test
@@ -120,7 +120,7 @@ public class GitCommandTest {
 
         @Test
         void shouldCheckIfRemoteRepoExists() {
-            GitCommand gitCommand = withBranch("master");
+            GitCommand gitCommand = withBranch("main");
             gitCommand.checkConnection(git.workingRepositoryUrl());
         }
 
@@ -184,24 +184,24 @@ public class GitCommandTest {
         }
 
         @Test
-        void defaultsToMasterWhenNoBranchIsSpecified() {
-            assertEquals("master", withBranch(null).localBranch());
-            assertEquals("master", withBranch(" ").localBranch());
+        void defaultsToMainWhenNoBranchIsSpecified() {
+            assertEquals("main", withBranch(null).localBranch());
+            assertEquals("main", withBranch(" ").localBranch());
             assertEquals("master", withBranch("master").localBranch());
             assertEquals("branch", withBranch("branch").localBranch());
 
-            assertEquals("origin/master", withBranch(null).remoteBranch());
-            assertEquals("origin/master", withBranch(" ").remoteBranch());
+            assertEquals("origin/main", withBranch(null).remoteBranch());
+            assertEquals("origin/main", withBranch(" ").remoteBranch());
             assertEquals("origin/master", withBranch("master").remoteBranch());
             assertEquals("origin/branch", withBranch("branch").remoteBranch());
 
-            assertEquals("refs/heads/master", withBranch(null).fullUpstreamRef());
-            assertEquals("refs/heads/master", withBranch(" ").fullUpstreamRef());
+            assertEquals("refs/heads/main", withBranch(null).fullUpstreamRef());
+            assertEquals("refs/heads/main", withBranch(" ").fullUpstreamRef());
             assertEquals("refs/heads/master", withBranch("master").fullUpstreamRef());
             assertEquals("refs/heads/branch", withBranch("branch").fullUpstreamRef());
 
-            assertEquals("master", withBranch(null).expandRefSpec());
-            assertEquals("master", withBranch(" ").expandRefSpec());
+            assertEquals("main", withBranch(null).expandRefSpec());
+            assertEquals("main", withBranch(" ").expandRefSpec());
             assertEquals("master", withBranch("master").expandRefSpec());
             assertEquals("branch", withBranch("branch").expandRefSpec());
         }

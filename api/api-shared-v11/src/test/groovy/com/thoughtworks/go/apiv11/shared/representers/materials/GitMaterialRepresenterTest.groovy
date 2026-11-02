@@ -87,7 +87,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
         attributes:
           [
             url     : "http://funk.com/blank",
-            branch  : "master",
+            branch  : "main",
             username: "user",
             password: "password"
           ]
@@ -120,7 +120,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
     ])
 
     def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
-    def expected = git("http://funk.com/blank")
+    def expected = git("http://funk.com/blank", "master")
     expected.setUserName("user")
     expected.setPassword("password")
 
@@ -136,7 +136,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
       attributes:
         [
           url               : "http://funk.com/blank",
-          branch            : "master",
+          branch            : "main",
           auto_update       : true,
           name              : null,
           invert_filter     : null,
@@ -160,7 +160,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
       attributes:
         [
           url               : "http://funk.com/blank",
-          branch            : "master",
+          branch            : "main",
           auto_update       : true,
           name              : null,
           invert_filter     : true,
@@ -193,7 +193,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
         ]
     ])
     def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
-    assertEquals("master", ((GitMaterialConfig) deserializedObject).getBranch().toString())
+    assertEquals("main", ((GitMaterialConfig) deserializedObject).getBranch().toString())
   }
 
   @Test
@@ -203,7 +203,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
       attributes:
         [
           url               : null,
-          branch            : "master",
+          branch            : "main",
           auto_update       : true,
           name              : null,
           username          : 'user',
@@ -220,7 +220,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
       type      : 'git',
       attributes:
         [
-          branch            : "master",
+          branch            : "main",
           auto_update       : true,
           name              : null,
           username          : 'user',
@@ -260,7 +260,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
         invert_filter   : false,
         name            : null,
         auto_update     : true,
-        branch          : "master",
+        branch          : "main",
         submodule_folder: null,
         shallow_clone   : false
       ]
@@ -276,7 +276,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
         invert_filter   : false,
         name            : "!nV@l!d",
         auto_update     : true,
-        branch          : "master",
+        branch          : "main",
         submodule_folder: "",
         shallow_clone   : false
       ],

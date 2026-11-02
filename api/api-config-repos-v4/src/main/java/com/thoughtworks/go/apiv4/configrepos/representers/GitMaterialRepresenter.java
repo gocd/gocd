@@ -28,7 +28,7 @@ class GitMaterialRepresenter implements MaterialRepresenter<GitMaterialConfig> {
         json.add("url", material.getUriForDisplay());
         json.addIfNotNull("username", material.getUserName());
         json.addIfNotNull("encrypted_password", material.getEncryptedPassword());
-        json.addWithDefaultIfBlank("branch", material.getBranch(), "master");
+        json.addWithDefaultIfBlank("branch", material.getBranch(), GitMaterialConfig.DEFAULT_BRANCH);
     }
 
     @Override

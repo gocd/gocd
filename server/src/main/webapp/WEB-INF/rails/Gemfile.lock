@@ -68,7 +68,8 @@ GEM
     drb (2.2.3)
     erubi (1.13.1)
     ffi (1.17.4-java)
-    ffi-compiler (1.4.2)
+    ffi (1.17.4-x86_64-linux-gnu)
+    ffi-compiler (1.4.3)
       ffi (>= 1.15.5)
       rake
     google-protobuf (4.35.1-java)
@@ -213,7 +214,8 @@ CHECKSUMS
   drb (2.2.3) sha256=0b00d6fdb50995fe4a45dea13663493c841112e4068656854646f418fda13373
   erubi (1.13.1) sha256=a082103b0885dbc5ecf1172fede897f9ebdb745a4b97a5e8dc63953db1ee4ad9
   ffi (1.17.4-java) sha256=449281c799727413eb367e396a838328e767a41fd76a14ae2dfbee0c37f0a279
-  ffi-compiler (1.4.2) sha256=a9d69d5d9ced6f64776ddafa535867ad90e5740ad37bed7afb4de6e450da126e
+  ffi (1.17.4-x86_64-linux-gnu) sha256=9d3db14c2eae074b382fa9c083fe95aec6e0a1451da249eab096c34002bc752d
+  ffi-compiler (1.4.3) sha256=51dc46db54d87753c6facdcde695e6850c5d7cf986ae9dd33246cb486478f343
   google-protobuf (4.35.1-java) sha256=1ab134cb790939adea2da9bad8af249a0c2489900cdbb4913806b5171193e6f8
   google-protobuf (4.35.1-x86_64-linux-gnu) sha256=c786439087512a3fbd199e9897d265b855f951d4027e218ea55e858d45969edd
   i18n (1.15.2) sha256=00f9eb62412fe593b2a65a97daa75300d37abb8f7202ec748e94b6d46a9dd1b5

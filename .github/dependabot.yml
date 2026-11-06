@@ -13,8 +13,6 @@ updates:
     schedule:
       interval: weekly
       day: friday
-    cooldown:
-      default-days: 2
     open-pull-requests-limit: 99
     groups:
       gradle-plugins:
@@ -29,8 +27,6 @@ updates:
     schedule:
       interval: weekly
       day: friday
-    cooldown:
-      default-days: 2
     open-pull-requests-limit: 99
     groups:
       babel:
@@ -56,8 +52,6 @@ updates:
     schedule:
       interval: weekly
       day: friday
-    cooldown:
-      default-days: 2
     open-pull-requests-limit: 99
     allow:
       - dependency-type: all
@@ -80,5 +74,4 @@ updates:
     schedule:
       interval: weekly
       day: friday
-    cooldown:
-      default-days: 2
+  

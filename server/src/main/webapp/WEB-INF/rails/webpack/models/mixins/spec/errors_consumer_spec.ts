@@ -35,6 +35,20 @@ describe("ErrorsConsumer", () => {
       expect(model.errors().errorsForDisplay("raw")).toBe("rawr.");
     });
 
+    it("keeps previously bound errors out of unmatched errors while the SPA collector retains all errors", () => {
+      const model = new Dummy();
+      const response = {errors: {raw: ["bound"], unknown: ["unbound"]}};
+
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const allErrors = model.consumeErrorsResponseForPipelineConfigSPA(response);
+        expect(allErrors.allErrorsForDisplay()).toEqual(["bound.", "unbound."]);
+        const unmatched = model.consumeErrorsResponse(response);
+        expect(unmatched.keys()).toEqual(["dummy.unknown"]);
+        expect(unmatched.allErrorsForDisplay()).toEqual(["unbound."]);
+        expect(model.errors().errorsForDisplay("raw")).toBe("bound.");
+      }
+    });
+
     it("binds all errors for a field", () => {
       const model = new Dummy();
 
@@ -207,7 +221,10 @@ describe("ErrorsConsumer", () => {
       const model = new DummyWithConfigurations();
 
       expect(model.config!.get(0).errors).toEqual([]);
-      model.consumeErrorsResponse({config: [{errors: {pluginKey: ["Boom!"]}}]});
+      const response = {config: [{errors: {pluginKey: ["Boom!"]}}]};
+      model.consumeErrorsResponseForPipelineConfigSPA(response);
+      expect(model.consumeErrorsResponse(response).hasErrors()).toBe(false);
+      expect(model.consumeErrorsResponse(response).hasErrors()).toBe(false);
       expect(model.config!.get(0).errors).toEqual(["Boom!"]);
     });
 

@@ -41,6 +41,8 @@ updates:
         patterns: [ "webpack*", "*-loader", "*-webpack-plugin", "*mini-css-extract-plugin" ]
       eslint:
         patterns: [ "eslint*", "@eslint/*", "@types/eslint*" ]
+      stylelint:
+        patterns: [ "stylelint*" ]
       types:
         patterns: [ "@types/*" ]
     ignore:

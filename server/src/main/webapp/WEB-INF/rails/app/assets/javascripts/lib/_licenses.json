@@ -3,7 +3,8 @@
     "moduleName": "ansi_up",
     "moduleVersion": "6.1.1-gocd",
     "moduleUrls": [
-      "https://github.com/gocd-contrib/ansi_up"
+      "https://github.com/gocd-contrib/ansi_up",
+      "https://github.com/drudru/ansi_up"
     ],
     "moduleLicenses": [
       {
@@ -28,7 +29,7 @@
   },
   "component-emitter": {
     "moduleName": "component-emitter",
-    "moduleVersion": "1.3.0",
+    "moduleVersion": "2.0.0",
     "moduleUrls": [
       "https://github.com/sindresorhus/component-emitter"
     ],
@@ -145,7 +146,7 @@
   },
   "pako-inflate": {
     "moduleName": "pako-inflate",
-    "moduleVersion": "1.0.11",
+    "moduleVersion": "2.2.0",
     "moduleUrls": [
       "https://github.com/nodeca/pako"
     ],
@@ -153,6 +154,10 @@
       {
         "moduleLicense": "MIT",
         "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
+      },
+      {
+        "moduleLicense": "Zlib",
+        "moduleLicenseUrl": "https://spdx.org/licenses/Zlib.html"
       }
     ]
   },

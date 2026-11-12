@@ -83,7 +83,12 @@ trait WrapperTemplateFilters {
     }
   }
 
-  Closure<String> wrapperConfTemplateFilter(InstallerLayout layout, Map<String, String> extraEnvVars = [:], List<String> extraJvmArgs = []) {
+  Closure<String> wrapperConfTemplateFilter(
+    InstallerLayout layout,
+    Map<String, String> extraEnvVars = [:],
+    List<String> extraJvmArgs = [],
+    boolean restrictLinuxLogPermissions = false
+  ) {
 
     Map<String, String> replacements = [
       'wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperSimpleApp':
@@ -128,6 +133,15 @@ trait WrapperTemplateFilters {
           'wrapper.console_input=DISABLED',
           'wrapper.console.flush=TRUE'
         ]
+
+        if (restrictLinuxLogPermissions) {
+          newLines.addAll([
+            '# Restrict log file creation permissions.',
+            'wrapper.logfile.umask=0027',
+            '# Restrict file creation permissions for the Java process.',
+            'wrapper.java.umask=0027'
+          ])
+        }
 
         (additionalEnvVars + extraEnvVars).forEach { k, v ->
           newLines.add("set.default.${k}=${v}")

@@ -23,7 +23,7 @@ public class GitMaterialRepresenter {
     public static void toJSON(OutputWriter jsonWriter, GitMaterialConfig gitMaterialConfig) {
         ScmMaterialRepresenter.toJSON(jsonWriter, gitMaterialConfig);
         jsonWriter.add("url", gitMaterialConfig.getUriForDisplay());
-        jsonWriter.addWithDefaultIfBlank("branch", gitMaterialConfig.getBranch(), "master");
+        jsonWriter.addWithDefaultIfBlank("branch", gitMaterialConfig.getBranch(), GitMaterialConfig.DEFAULT_BRANCH);
         jsonWriter.add("submodule_folder", gitMaterialConfig.getSubmoduleFolder());
         jsonWriter.add("shallow_clone", gitMaterialConfig.isShallowClone());
     }

@@ -60,11 +60,11 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
           invert_filter   : false,
           name            : null,
           auto_update     : true,
-          branch          : "master",
+          branch          : "main",
           submodule_folder: null,
           shallow_clone   : false,
           display_type    : "Git",
-          description     : "URL: http://funk.com/blank, Branch: master",
+          description     : "URL: http://funk.com/blank, Branch: main",
         ]
       ]
 
@@ -108,7 +108,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
         invert_filter   : false,
         name            : null,
         auto_update     : true,
-        branch          : "master",
+        branch          : "main",
         submodule_folder: null,
         shallow_clone   : false,
         display_type    : "Git",
@@ -126,7 +126,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
         invert_filter   : false,
         name            : "!nV@l!d",
         auto_update     : true,
-        branch          : "master",
+        branch          : "main",
         submodule_folder: "",
         shallow_clone   : false,
         display_type    : "Git",

@@ -234,7 +234,7 @@ public class GitMaterialTest {
             submoduleRepos.addSubmodule(SUBMODULE, "sub1");
             GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
 
-            StringRevision revision = new StringRevision("origin/master");
+            StringRevision revision = new StringRevision("origin/main");
             gitMaterial.updateTo(outputStreamConsumer, workingDir, new RevisionContext(revision), new TestSubprocessExecutionContext());
             assertThat(new File(workingDir, "sub1")).exists();
 
@@ -317,7 +317,7 @@ public class GitMaterialTest {
             git.latestModification(workingDir, new TestSubprocessExecutionContext());
             InMemoryStreamConsumer output = inMemoryConsumer();
             CommandLine.createCommandLine("git").withEncoding(UTF_8).withArg("branch").withWorkingDir(workingDir).run(output, null);
-            assertThat(output.getStdOut()).isEqualTo("* master");
+            assertThat(output.getStdOut()).isEqualTo("* main");
 
             git = new GitMaterial(gitFooBranchBundle.projectRepositoryUrl(), "foo");
             git.latestModification(workingDir, new TestSubprocessExecutionContext());
@@ -335,7 +335,15 @@ public class GitMaterialTest {
             validationBean = git.checkConnection(new TestSubprocessExecutionContext());
             assertThat(validationBean.isValid()).as("Connection should not be valid").isFalse();
             assertThat(validationBean.getError()).contains("Error performing command");
-            assertThat(validationBean.getError()).contains("git ls-remote -- http://nonExistantHost/git refs/heads/master");
+            assertThat(validationBean.getError()).contains("git ls-remote -- http://nonExistantHost/git refs/heads/main");
+        }
+
+        @Test
+        void shouldCheckConnectionToRepositoryWithOnlyMainBranchWhenBranchIsNotSpecified() throws Exception {
+            GitRepoContainingSubmodule mainOnlyRepo = new GitRepoContainingSubmodule(tempDir);
+            GitMaterial material = new GitMaterial(mainOnlyRepo.projectRepositoryUrl());
+
+            assertThat(material.checkConnection(new TestSubprocessExecutionContext()).isValid()).isTrue();
         }
 
         @Test
@@ -779,7 +787,7 @@ public class GitMaterialTest {
         MaterialRevision materialRevision = new MaterialRevision(material, modifications);
         material.populateEnvironmentContext(ctx, materialRevision, new File("."));
 
-        assertThat(ctx.getProperty(GitMaterial.GO_MATERIAL_BRANCH)).isEqualTo("master");
+        assertThat(ctx.getProperty(GitMaterial.GO_MATERIAL_BRANCH)).isEqualTo("main");
     }
 
     private void assertWorkingCopyNotCheckedOut(File localWorkingDir) {

@@ -573,7 +573,7 @@ class PipelineConfigRepresenterTest {
           type: 'svn', attributes: [url: 'http://some/svn/url', destination: 'svnDir', filter: null, invert_filter: false, name: 'http___some_svn_url', auto_update: true, check_externals: false]
         ],
         [
-          type  : 'git', attributes: [url: null, destination: null, filter: null, invert_filter: false, name: null, auto_update: true, branch: 'master', submodule_folder: null, shallow_clone: false],
+          type  : 'git', attributes: [url: null, destination: null, filter: null, invert_filter: false, name: null, auto_update: true, branch: 'main', submodule_folder: null, shallow_clone: false],
           errors: [destination: ['Destination directory is required when a pipeline has multiple SCM materials.'], url: ['URL cannot be blank']]
         ]
       ],

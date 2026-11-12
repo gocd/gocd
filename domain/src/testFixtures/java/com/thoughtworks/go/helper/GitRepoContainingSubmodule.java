@@ -148,7 +148,7 @@ public class GitRepoContainingSubmodule extends TestRepo {
         git(remoteRepoDir).submoduleSync();
 
         git(new File(remoteRepoDir, "local-submodule")).fetch(inMemoryConsumer());
-        git(new File(remoteRepoDir, "local-submodule")).resetHard(inMemoryConsumer(), new StringRevision("origin/master"));
+        git(new File(remoteRepoDir, "local-submodule")).resetHard(inMemoryConsumer(), new StringRevision("origin/main"));
         git(remoteRepoDir).add(new File(".gitmodules"));
         git(remoteRepoDir).add(new File("local-submodule"));
         git(remoteRepoDir).commit("change submodule url");
@@ -162,6 +162,7 @@ public class GitRepoContainingSubmodule extends TestRepo {
         File withSubmodules = new File(workingDir, repoName);
         withSubmodules.mkdirs();
         git(withSubmodules).init();
+        createCommandLine("git").withEncoding(UTF_8).withWorkingDir(withSubmodules).withArgs("symbolic-ref", "HEAD", "refs/heads/main").runOrBomb(true, new NamedProcessTag("git_branch"));
         createCommandLine("git").withEncoding(UTF_8).withWorkingDir(withSubmodules).withArgs("config", "user.name", "go_test").runOrBomb(true, new NamedProcessTag("git_config"));
         createCommandLine("git").withEncoding(UTF_8).withWorkingDir(withSubmodules).withArgs("config", "user.email", "go_test@go_test.me").runOrBomb(true, new NamedProcessTag("git_config"));
         createCommandLine("git").withEncoding(UTF_8).withWorkingDir(withSubmodules).withArgs("config", "commit.gpgSign", "false").runOrBomb(true, new NamedProcessTag("git_config"));

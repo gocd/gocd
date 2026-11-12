@@ -512,6 +512,26 @@
 
   <suppress>
     <notes><![CDATA[
+    GoCD uses a custom jruby-rack JavaSwevletStore to back sessions and is thus not vulnerable to these session
+    handling issues within Rails, does not use public actions responses, and does not use each_key from Parameters.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:gem/actionpack@.*$</packageUrl>
+    <cve>CVE-2026-126067</cve>
+    <cve>CVE-2026-126073</cve>
+    <cve>CVE-2026-126076</cve>
+    <cve>CVE-2026-126081</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD is not vulnerable to this ActiveSupport issue as is not used with actioncable, as is required for
+    exploitation.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:gem/activesupport@.*$</packageUrl>
+    <cve>CVE-2026-126080</cve>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
     Suppress false positive from nokogiri. GoCD does not use Ruby/nokogiri to validate docs against HTML schemas, let
     users influence CSS selectors, or use XSLT transforms - so is not vulnerable to these vulnerabilities.
     ]]></notes>

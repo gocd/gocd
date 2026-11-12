@@ -2321,6 +2321,57 @@ public class GoConfigMigrationIntegrationTest {
         XmlAssert.assertThat(migratedXml).nodesByXPath("//server").doNotHaveAttribute("commandRepositoryLocation");
     }
 
+    @Test
+    public void shouldMigrateEverythingAsItIs_Migration139To140() {
+        String originalConfig = """
+            <server>
+                <artifacts>
+                  <artifactsDir>artifacts</artifactsDir>
+                  <purgeSettings>
+                    <purgeStartDiskSpace>10.0</purgeStartDiskSpace>
+                    <purgeUptoDiskSpace>20.0</purgeUptoDiskSpace>
+                  </purgeSettings>
+                </artifacts>
+              </server>
+              <pipelines group="first">
+                <pipeline name="Test" template="test_template">
+                  <materials>
+                      <git url="http://" dest="dest_dir14" />
+                  </materials>
+                 </pipeline>
+              </pipelines>
+              <templates>
+                <pipeline name="test_template">
+                  <stage name="Functional">
+                    <jobs>
+                      <job name="Functional">
+                        <tasks>
+                          <exec command="echo" args="Hello World!!!" />
+                        </tasks>
+                       </job>
+                    </jobs>
+                  </stage>
+                </pipeline>
+              </templates>""";
+
+        String configXml =
+            """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <cruise schemaVersion="139">
+                %s</cruise>
+                """.formatted(originalConfig);
+
+        String expectedConfig =
+            """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <cruise schemaVersion="140">
+                %s</cruise>
+                """.formatted(originalConfig);
+
+        final String migratedXml = ConfigMigrator.migrate(configXml, 139, 140);
+        XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
+    }
+
     @SuppressWarnings("SameParameterValue")
     private void assertStringContainsIgnoringCarriageReturn(String actual, String substring) {
         assertThat(actual.replace("\r", "")).contains(substring.replace("\r", ""));

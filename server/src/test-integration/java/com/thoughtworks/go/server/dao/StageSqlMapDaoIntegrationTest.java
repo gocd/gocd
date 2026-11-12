@@ -1298,6 +1298,42 @@ public class StageSqlMapDaoIntegrationTest {
     }
 
     @Test
+    public void shouldLoadOldestStagesHavingPurgedArtifactsAfterGivenStageInBatchOf100() {
+        Pipeline[] pipelines = new Pipeline[102];
+        for (int i = 0; i < 102; i++) {
+            Pipeline pipeline = dbHelper.schedulePipeline(PipelineConfigMother.createPipelineConfig("foo_" + i, "stage1", "job1"), new TimeProvider());
+            dbHelper.pass(pipeline);
+            pipelines[i] = pipeline;
+        }
+        assertThat(stageDao.oldestStagesHavingPurgedArtifacts(0).size()).isEqualTo(0);
+
+        for (int i = 0; i < 101; i++) {
+            stageDao.markArtifactsDeletedFor(pipelines[i].getFirstStage());
+        }
+
+        List<Stage> stages = stageDao.oldestStagesHavingPurgedArtifacts(0);
+        assertThat(stages.size()).isEqualTo(100);
+        for (int i = 0; i < 100; i++) {
+            Stage stage = stages.get(i);
+            assertThat(stage.getIdentifier()).isEqualTo(pipelines[i].getFirstStage().getIdentifier());
+            assertThat(stage.isArtifactsDeleted()).isTrue();
+        }
+        stages = stageDao.oldestStagesHavingPurgedArtifacts(stages.getLast().getId());
+        assertThat(stages.size()).isEqualTo(1);
+        assertThat(stages.getFirst().getIdentifier()).isEqualTo(pipelines[100].getFirstStage().getIdentifier());
+        assertThat(stageDao.oldestStagesHavingPurgedArtifacts(stages.getFirst().getId()).size()).isEqualTo(0);
+    }
+
+    @Test
+    public void shouldOnlyLoadCompletedStagesAsOldestStagesHavingPurgedArtifacts() {
+        Pipeline pipeline = dbHelper.schedulePipeline(PipelineConfigMother.createPipelineConfig("foo", "stage1", "job1"), new TimeProvider());
+        stageDao.markArtifactsDeletedFor(pipeline.getFirstStage());
+        assertThat(stageDao.oldestStagesHavingPurgedArtifacts(0).size()).isEqualTo(0);
+        dbHelper.pass(pipeline);
+        assertThat(stageDao.oldestStagesHavingPurgedArtifacts(0).size()).isEqualTo(1);
+    }
+
+    @Test
     public void shouldOnlyLoadCompletedStagesAsOldestStagesHavingArtifacts() {
         Pipeline pipeline = dbHelper.schedulePipeline(PipelineConfigMother.createPipelineConfig("foo", "stage1", "job1"), new TimeProvider());
         List<Stage> stages = stageDao.oldestStagesHavingArtifacts();

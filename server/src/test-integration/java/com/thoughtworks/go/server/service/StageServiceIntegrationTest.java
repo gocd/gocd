@@ -535,6 +535,30 @@ public class StageServiceIntegrationTest {
     }
 
     @Test
+    public void shouldLoadStagesHavingPurgedArtifactsWhenStageIsNotCleanupProtected() {
+        PipelineConfig pipelineConfig = configHelper.addPipeline("pipeline-1", "stage-1", "job-1");
+
+        Pipeline completed = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
+        dbHelper.pass(completed);
+        assertThat(stageService.oldestStagesWithPurgedArtifacts(0).size()).isEqualTo(0);
+
+        stageDao.markArtifactsDeletedFor(completed.getFirstStage());
+        List<Stage> stages = stageService.oldestStagesWithPurgedArtifacts(0);
+        assertThat(stages.size()).isEqualTo(1);
+        assertThat(stages.getFirst().getIdentifier()).isEqualTo(completed.getFirstStage().getIdentifier());
+        assertThat(stageService.oldestStagesWithPurgedArtifacts(stages.getFirst().getId()).size()).isEqualTo(0);
+
+        CruiseConfig cruiseConfig = configHelper.currentConfig();
+        pipelineConfig = cruiseConfig.pipelineConfigByName(cis("pipeline-1"));
+        ReflectionUtil.setField(pipelineConfig.getFirst(), "artifactCleanupProhibited", true);
+        configHelper.writeConfigFile(cruiseConfig);
+
+        configDbStateRepository.flushConfigState();
+
+        assertThat(stageService.oldestStagesWithPurgedArtifacts(0).size()).isEqualTo(0);
+    }
+
+    @Test
     public void shouldLoadPageOfOldestStagesHavingArtifacts() {
         CruiseConfig cruiseConfig = configHelper.currentConfig();
         PipelineConfig mingleConfig = cruiseConfig.pipelineConfigByName(cis(PIPELINE_NAME));

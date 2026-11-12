@@ -74,18 +74,21 @@ export class SiteUrls extends ValidatableMixin {
 export interface PurgeSettingsJSON extends ErrorJSON {
   purge_start_disk_space?: number;
   purge_upto_disk_space?: number;
+  purge_artifact_directories?: boolean;
 }
 
 export class PurgeSettings extends ValidatableMixin {
   readonly purgeStartDiskSpace: Stream<number | undefined>;
   readonly purgeUptoDiskSpace: Stream<number | undefined>;
+  readonly purgeArtifactDirectories: Stream<boolean>;
   readonly cleanupArtifact: Stream<boolean>;
 
-  constructor(purgeStartDiskSpace?: number, purgeUptoDiskSpace?: number, errors?: Errors) {
+  constructor(purgeStartDiskSpace?: number, purgeUptoDiskSpace?: number, errors?: Errors, purgeArtifactDirectories?: boolean) {
     super();
-    this.purgeStartDiskSpace = Stream(purgeStartDiskSpace);
-    this.purgeUptoDiskSpace  = Stream(purgeUptoDiskSpace);
-    this.cleanupArtifact     = Stream(this.isCleanupEnabled());
+    this.purgeStartDiskSpace      = Stream(purgeStartDiskSpace);
+    this.purgeUptoDiskSpace       = Stream(purgeUptoDiskSpace);
+    this.purgeArtifactDirectories = Stream(!!purgeArtifactDirectories);
+    this.cleanupArtifact          = Stream(this.isCleanupEnabled());
     if (errors) {
       this.errors(errors);
     }
@@ -100,7 +103,7 @@ export class PurgeSettings extends ValidatableMixin {
     if (data.errors) {
       errors = JsonUtils.toCamelCasedObject(data.errors);
     }
-    return new PurgeSettings(data.purge_start_disk_space, data.purge_upto_disk_space, new Errors(errors));
+    return new PurgeSettings(data.purge_start_disk_space, data.purge_upto_disk_space, new Errors(errors), data.purge_artifact_directories);
   }
 
   isCleanupEnabled(): boolean {
@@ -115,6 +118,9 @@ export class PurgeSettings extends ValidatableMixin {
     }
     if (this.purgeUptoDiskSpace() !== undefined) {
       purgeSettingsJSON.purge_upto_disk_space = this.purgeUptoDiskSpace();
+    }
+    if (this.purgeArtifactDirectories()) {
+      purgeSettingsJSON.purge_artifact_directories = true;
     }
     return purgeSettingsJSON;
   }

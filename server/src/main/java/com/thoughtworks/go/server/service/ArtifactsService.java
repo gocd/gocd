@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.zip.ZipInputStream;
 
 import static java.lang.String.format;
@@ -173,6 +174,58 @@ public class ArtifactsService implements ArtifactUrlReader {
         stageDao.markArtifactsDeletedFor(stage);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Marked stage '{}' as artifacts deleted.", stageIdentifier.entityLocator());
+        }
+    }
+
+    /**
+     * Purges everything that is stored for a stage rather than only its artifacts. This removes the directory of the
+     * stage along with the console logs and pluggable artifact metadata of its jobs, as well as any directories of the
+     * pipeline instance that are left empty as a result. The directories are removed even if the artifacts of the stage
+     * were purged earlier, which makes it safe to call this repeatedly for the same stage.
+     *
+     * @return true if there was a directory for the stage to remove
+     */
+    public boolean purgeArtifactDirectoriesForStage(Stage stage) {
+        StageIdentifier stageIdentifier = stage.getIdentifier();
+        boolean purged = false;
+        try {
+            deleteDirectoryAndEmptyParents(chooser.preferredCachedArtifact(stageIdentifier));
+            purged = deleteDirectoryAndEmptyParents(chooser.preferredRoot(stageIdentifier));
+        } catch (Exception e) {
+            LOGGER.error("Error occurred while clearing artifact directories for '{}'. Error: '{}'", stageIdentifier.entityLocator(), e.getMessage(), e);
+        }
+        if (!stage.isArtifactsDeleted()) {
+            stageDao.markArtifactsDeletedFor(stage);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Marked stage '{}' as artifacts deleted.", stageIdentifier.entityLocator());
+            }
+        }
+        return purged;
+    }
+
+    private static boolean deleteDirectoryAndEmptyParents(File stageDirectory) {
+        if (stageDirectory == null) {
+            return false;
+        }
+        File stageNameDirectory = stageDirectory.getParentFile();
+        File pipelineCounterDirectory = stageNameDirectory.getParentFile();
+        if (!pipelineCounterDirectory.exists()) {
+            return false;
+        }
+        boolean exists = stageDirectory.exists();
+        if (exists && !FileUtils.deleteQuietly(stageDirectory)) {
+            LOGGER.error("Directory '{}' was not successfully deleted", stageDirectory.getAbsolutePath());
+        }
+        // These are shared with the other stage runs of the pipeline instance, so they only go once the last of those is gone
+        deleteIfEmpty(stageNameDirectory);
+        deleteIfEmpty(pipelineCounterDirectory);
+        return exists;
+    }
+
+    private static void deleteIfEmpty(File directory) {
+        // File#delete leaves a directory alone unless it is empty, but would remove a link to a directory regardless of its contents
+        if (!Files.isSymbolicLink(directory.toPath())) {
+            directory.delete();
         }
     }
 

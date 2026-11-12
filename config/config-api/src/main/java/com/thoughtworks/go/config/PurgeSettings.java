@@ -19,6 +19,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import lombok.*;
 import lombok.experimental.Accessors;
 
+import static com.thoughtworks.go.config.ServerConfig.PURGE_ARTIFACT_DIRECTORIES;
 import static com.thoughtworks.go.config.ServerConfig.PURGE_START;
 import static com.thoughtworks.go.config.ServerConfig.PURGE_UPTO;
 
@@ -34,6 +35,8 @@ public class PurgeSettings implements Validatable {
     private PurgeStart purgeStart = new PurgeStart();
     @ConfigSubtag
     private PurgeUpto purgeUpto = new PurgeUpto();
+    @ConfigAttribute(value = "purgeArtifactDirectories")
+    private boolean purgeArtifactDirectories = false;
 
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
@@ -46,6 +49,9 @@ public class PurgeSettings implements Validatable {
         Double purgeStartDiskSpace = purgeStart.getPurgeStartDiskSpace();
 
         if (purgeUptoDiskSpace == null && purgeStartDiskSpace == null) {
+            if (purgeArtifactDirectories) {
+                errors().add(PURGE_ARTIFACT_DIRECTORIES, "Error in artifact cleanup values. Console logs and artifact directories can only be cleaned up when the trigger and goal values are specified");
+            }
             return;
         }
 

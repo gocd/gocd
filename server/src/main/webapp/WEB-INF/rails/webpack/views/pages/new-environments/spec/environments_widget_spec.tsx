@@ -33,12 +33,14 @@ describe("Environments Widget", () => {
 
   function mountModal(envs: EnvironmentJSON[]) {
     sm = stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl", "hasTarget"]);
+    const environments = Environments.fromJSON({_embedded: {environments: envs}});
     helper.mount(() => <EnvironmentsWidget
-      environments={Stream(Environments.fromJSON({_embedded: {environments: envs}}))}
+      environments={Stream(environments)}
       agents={Stream(new Agents())}
       onDelete={jasmine.createSpy()}
       onSuccessfulSave={_.noop}
       sm={sm}/>);
+    return environments;
   }
 
   afterEach(helper.unmount.bind(helper));
@@ -52,6 +54,22 @@ describe("Environments Widget", () => {
     expect(helper.byTestId("collapsible-panel-for-env-" + xmlEnv.name)).toBeInDOM();
     expect(helper.byTestId("collapsible-panel-for-env-" + configRepoEnv.name)).toBeInDOM();
     expect(helper.byTestId("collapsible-panel-for-env-" + env.name)).toBeInDOM();
+  });
+
+  it("should render environments in case-insensitive alphabetical order without changing the model", () => {
+    const sourceOrder = ["uat", "Production", "dev", "QA"];
+    const envs = sourceOrder.map((name) => ({...data.xml_environment_json(), name}));
+    const environments = mountModal(envs);
+
+    const renderedOrder = Array.from(helper.qa("[data-test-id^='collapsible-panel-for-env-']"))
+                               .map((panel) => panel.getAttribute("data-test-id"));
+    expect(renderedOrder).toEqual([
+      "collapsible-panel-for-env-dev",
+      "collapsible-panel-for-env-Production",
+      "collapsible-panel-for-env-QA",
+      "collapsible-panel-for-env-uat"
+    ]);
+    expect(Array.from(environments, (environment) => environment.name())).toEqual(sourceOrder);
   });
 
   it("should render environment header for all the environments", () => {
@@ -85,30 +103,32 @@ describe("Environments Widget", () => {
 
   it("should render disabled delete icon for the environments that user can not administer", () => {
     const xmlEnv          = data.xml_environment_json();
+    const editableEnv     = data.xml_environment_json();
     xmlEnv.can_administer = false;
-    mountModal([xmlEnv, data.xml_environment_json()]);
+    mountModal([xmlEnv, editableEnv]);
 
     m.redraw.sync();
 
-    const deleteIcons = helper.allByTestId("Delete-icon");
-
-    expect(deleteIcons).toHaveLength(2);
-    expect(deleteIcons[0].title).toBe(`You are not authorized to delete the '${xmlEnv.name}' environment.`);
-    expect(deleteIcons[0]).toBeDisabled();
-    expect(deleteIcons[1].title).toBeFalsy();
-    expect(deleteIcons[1]).not.toBeDisabled();
+    const disabledIcon = helper.byTestId("Delete-icon", helper.byTestId(`collapsible-panel-for-env-${xmlEnv.name}`));
+    const editableIcon = helper.byTestId("Delete-icon", helper.byTestId(`collapsible-panel-for-env-${editableEnv.name}`));
+    expect(disabledIcon.title).toBe(`You are not authorized to delete the '${xmlEnv.name}' environment.`);
+    expect(disabledIcon).toBeDisabled();
+    expect(editableIcon.title).toBeFalsy();
+    expect(editableIcon).not.toBeDisabled();
+    expect(helper.allByTestId("Delete-icon")).toHaveLength(2);
   });
 
   it("should render disabled delete icon for the environments that are partially defined in config repository", () => {
     const env = data.environment_json();
-    mountModal([data.xml_environment_json(), env]);
-    const deleteIcons = helper.allByTestId("Delete-icon");
-
-    expect(deleteIcons).toHaveLength(2);
-    expect(deleteIcons[0].title).toBeFalsy();
-    expect(deleteIcons[0]).not.toBeDisabled();
-    expect(deleteIcons[1].title).toBe(`Cannot delete '${env.name}' environment as it is partially defined in config repository.`);
-    expect(deleteIcons[1]).toBeDisabled();
+    const xmlEnv = data.xml_environment_json();
+    mountModal([xmlEnv, env]);
+    const editableIcon = helper.byTestId("Delete-icon", helper.byTestId(`collapsible-panel-for-env-${xmlEnv.name}`));
+    const configRepoIcon = helper.byTestId("Delete-icon", helper.byTestId(`collapsible-panel-for-env-${env.name}`));
+    expect(editableIcon.title).toBeFalsy();
+    expect(editableIcon).not.toBeDisabled();
+    expect(configRepoIcon.title).toBe(`Cannot delete '${env.name}' environment as it is partially defined in config repository.`);
+    expect(configRepoIcon).toBeDisabled();
+    expect(helper.allByTestId("Delete-icon")).toHaveLength(2);
   });
 
   it("should render warning line if no pipelines and agents assigned to the environment", () => {

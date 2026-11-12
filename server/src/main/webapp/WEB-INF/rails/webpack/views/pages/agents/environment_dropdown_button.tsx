@@ -15,6 +15,7 @@
  */
 
 import {ApiResult} from "helpers/api_request_builder";
+import {mixins} from "helpers/string-plus";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -53,16 +54,18 @@ export class EnvironmentsDropdownButton extends AbstractDropdownButton<EnvAttrs>
     }
 
     return [
-      Array.from(this.triStateCheckboxMap).map(([environment, triStateCheckbox]) => {
-        const tooltipMsg = (triStateCheckbox as EnvironmentInfo).getToolTipMsg();
-        const tooltip = (tooltipMsg.length > 0) ? <Info content={tooltipMsg}/> : null;
-        return <div class={Style.environmentInfo}>
-          <TriStateCheckboxField label={environment}
-                                 property={Stream(triStateCheckbox)}
-                                 readonly={triStateCheckbox.isDisabled()}/>
-          {tooltip}
-        </div>;
-      }),
+      Array.from(this.triStateCheckboxMap)
+        .sort(([first], [second]) => mixins.caseInsensitiveCompare(first, second))
+        .map(([environment, triStateCheckbox]) => {
+          const tooltipMsg = (triStateCheckbox as EnvironmentInfo).getToolTipMsg();
+          const tooltip = (tooltipMsg.length > 0) ? <Info content={tooltipMsg}/> : null;
+          return <div class={Style.environmentInfo}>
+            <TriStateCheckboxField label={environment}
+                                   property={Stream(triStateCheckbox)}
+                                   readonly={triStateCheckbox.isDisabled()}/>
+            {tooltip}
+          </div>;
+        }),
       <div class={Style.dropdownContentFooter}>
         <Primary data-test-id="environment-to-apply"
                  onclick={this.apply.bind(this, vnode)} disabled={this.areAllEnvsDisabled()}>Apply</Primary>

@@ -15,6 +15,7 @@
  */
 
 import {docsUrl} from "gen/gocd_version";
+import {mixins} from "helpers/string-plus";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -129,9 +130,11 @@ export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
     }
 
     return <div>
-      {vnode.attrs.environments().map((environment: any) => {
-        return <EnvironmentWidget {...vnode.attrs} environment={environment}/>;
-      })}
+      {Array.from(vnode.attrs.environments())
+        .sort((a, b) => mixins.caseInsensitiveCompare(a.name(), b.name()))
+        .map((environment) => {
+          return <EnvironmentWidget {...vnode.attrs} environment={environment}/>;
+        })}
     </div>;
 
   }

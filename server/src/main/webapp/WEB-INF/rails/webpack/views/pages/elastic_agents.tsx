@@ -31,7 +31,7 @@ import {Permission, Permissions, SupportedEntity} from "models/shared/permission
 import {ElasticAgentsExtensionType, ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
-import {Primary} from "views/components/buttons";
+import {ButtonIcon, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {Link} from "views/components/link";
@@ -378,7 +378,7 @@ export class ElasticAgentsPage extends Page<null, State> {
     const hasPluginInstalled = vnode.state.pluginInfos().length !== 0;
     const isWizardClose      = vnode.state.isWizardOpen !== undefined && !vnode.state.isWizardOpen();
     if (hasPluginInstalled && isWizardClose) {
-      return <Primary onclick={vnode.state.clusterProfileOperations.onAdd}>Add</Primary>;
+      return <Primary icon={ButtonIcon.ADD} onclick={vnode.state.clusterProfileOperations.onAdd}>Create Cluster Profile</Primary>;
     }
   }
 

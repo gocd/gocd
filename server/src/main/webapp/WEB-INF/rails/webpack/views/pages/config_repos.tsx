@@ -194,7 +194,8 @@ export class ConfigReposPage extends Page<null, State> {
                      dataTestId={"search-box"}
                      placeholder="Search Config Repo"/>
       </div>,
-      <Buttons.Primary onclick={vnode.state.onAdd.bind(vnode.state)}>Add</Buttons.Primary>
+      <Buttons.Primary icon={Buttons.ButtonIcon.ADD}
+                       onclick={vnode.state.onAdd.bind(vnode.state)}>Create Config Repository</Buttons.Primary>
     ];
     return <HeaderPanel title="Config Repositories" buttons={headerButtons} help={this.helpText()}/>;
   }

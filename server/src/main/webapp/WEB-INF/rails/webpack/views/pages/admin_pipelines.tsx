@@ -49,7 +49,6 @@ import {
 } from "views/pages/admin_pipelines/modals";
 import configRepoStyles from "views/pages/config_repos/index.scss";
 import {Page, PageState} from "views/pages/page";
-import buttonStyle from "views/pages/pipelines/actions.scss";
 import {EditPipelineGroupModal} from "./admin_pipelines/edit_pipeline_group_modal";
 
 interface State extends Attrs {
@@ -315,15 +314,20 @@ export class AdminPipelinesPage extends Page<null, State> {
   }
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {
+    const hasPipelineGroups = !_.isEmpty(vnode.state.pipelineGroups());
+    const createPipelineGroupButtonProps = {
+      "icon": ButtonIcon.ADD,
+      "disabled": !headerMeta().isUserAdmin,
+      "title": headerMeta().isUserAdmin ? "Create a new pipeline group" : "Only GoCD system administrators are allowed to create a pipeline group.",
+      "onclick": vnode.state.createPipelineGroup.bind(vnode.state),
+      "data-test-id": "create-new-pipeline-group"
+    };
     const headerButtons = [
-      <Buttons.Secondary css={buttonStyle}
-                         icon={ButtonIcon.ADD}
-                         disabled={!headerMeta().isUserAdmin}
-                         title={headerMeta().isUserAdmin ? "Create a new pipeline group" : "Only GoCD system administrators are allowed to create a pipeline group."}
-                         onclick={vnode.state.createPipelineGroup.bind(vnode.state)}
-                         data-test-id="create-new-pipeline-group">Create new pipeline group</Buttons.Secondary>
+      hasPipelineGroups
+        ? <Buttons.Default {...createPipelineGroupButtonProps}>Create Pipeline Group</Buttons.Default>
+        : <Buttons.Primary {...createPipelineGroupButtonProps}>Create Pipeline Group</Buttons.Primary>
     ];
-    if (!_.isEmpty(vnode.state.pipelineGroups())) {
+    if (hasPipelineGroups) {
       const searchBox = <div className={configRepoStyles.wrapperForSearchBox}>
         <SearchField property={vnode.state.searchText} dataTestId={"search-box"}
                      placeholder="Search for a pipeline name"/>

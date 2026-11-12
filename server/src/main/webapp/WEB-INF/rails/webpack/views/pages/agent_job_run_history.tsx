@@ -17,8 +17,10 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Agent} from "models/agents/agents";
+import {AgentsCRUD} from "models/agents/agents_crud";
 import {AgentJobRunHistoryAPI, AgentJobRunHistoryAPIJSON} from "models/agent_job_run_history";
 import {FlashMessage, MessageType} from "views/components/flash_message";
+import {HeaderPanel} from "views/components/header_panel";
 import {AgentJobRunHistoryWidget} from "views/pages/agent-job-run-history/agent_job_run_history_widget";
 import {Page, PageState} from "views/pages/page";
 
@@ -49,11 +51,22 @@ export class AgentJobRunHistoryPage extends Page<null, State> {
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
     vnode.state.jobHistory = Stream();
     vnode.state.agent      = Stream();
-    return this.fetchJobHistoryForPage(vnode, 1);
+
+    const agent = AgentsCRUD.get(this.getMeta().uuid).then((result) => {
+      result.do((successResponse) => vnode.state.agent(successResponse.body));
+    });
+
+    return Promise.all([agent, this.fetchJobHistoryForPage(vnode, 1)]);
   }
 
   helpText(): m.Children {
     return undefined;
+  }
+
+  protected headerPanel(vnode: m.Vnode<null, State>) {
+    return <HeaderPanel title={this.pageName()}
+                        keyValuePair={{"Agent Name": vnode.state.agent()?.hostname || "Unavailable",
+                                       "UUID": this.getMeta().uuid}}/>;
   }
 
   private fetchJobHistoryForPage(vnode: m.Vnode<null, State>, pageNumber: number) {

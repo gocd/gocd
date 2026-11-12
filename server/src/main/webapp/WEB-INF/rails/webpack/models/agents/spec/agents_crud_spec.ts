@@ -34,6 +34,19 @@ describe('AgentsCRUD', () => {
     expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
   });
 
+  it("should get an agent by UUID", async () => {
+    const agent = AgentsTestData.withHostname("build-agent");
+    jasmine.Ajax.stubRequest(`/go/api/agents/${agent.uuid}`).andReturn({
+      status: 200,
+      responseText: JSON.stringify(agent)
+    });
+
+    const result = await AgentsCRUD.get(agent.uuid);
+
+    expect(jasmine.Ajax.requests.mostRecent().url).toEqual(`/go/api/agents/${agent.uuid}`);
+    result.do((response) => expect(response.body.hostname).toEqual("build-agent"), fail);
+  });
+
   it("should make a delete request", () => {
     jasmine.Ajax.stubRequest("/go/api/agents").andReturn(listAgentsResponse());
 

@@ -519,7 +519,16 @@
     <cve>CVE-2026-126067</cve>
     <cve>CVE-2026-126073</cve>
     <cve>CVE-2026-126076</cve>
+    <cve>CVE-2026-126077</cve>
     <cve>CVE-2026-126081</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD is not vulnerable to these ActionView issues as does not use highlighters
+    ]]></notes>
+    <packageUrl regex="true">^pkg:gem/actionview@.*$</packageUrl>
+    <cve>CVE-2026-126078</cve>
+    <cve>CVE-2026-126079</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[

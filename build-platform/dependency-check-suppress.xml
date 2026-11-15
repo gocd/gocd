@@ -544,17 +544,23 @@
     Suppress false positive from nokogiri. GoCD does not use Ruby/nokogiri to validate docs against HTML schemas, let
     users influence CSS selectors, or use XSLT transforms - so is not vulnerable to these vulnerabilities.
     ]]></notes>
-    <packageUrl regex="true">^pkg:gem/nokogiri@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:gem/(loofah|nokogiri)@.*$</packageUrl>
     <cve>CVE-2026-57234</cve>
     <cve>CVE-2026-79770</cve>
     <cve>CVE-2026-79771</cve>
     <cve>CVE-2026-126062</cve>
+    <cve>CVE-2026-126064</cve>
+    <cve>CVE-2026-126205</cve>
+    <cve>CVE-2026-126206</cve>
+    <cve>CVE-2026-126207</cve>
+    <cve>CVE-2026-126208</cve>
+    <cve>CVE-2026-126209</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[
-    Suppress false positives from nokogiri which only affect CRuby; not JRuby.
+    Suppress false positives from loofah/nokogiri which only affect CRuby; not JRuby.
     ]]></notes>
-    <packageUrl regex="true">^pkg:gem/nokogiri@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:gem/(loofah|nokogiri)@.*$</packageUrl>
     <cve>CVE-2026-57235</cve>
     <cve>CVE-2026-57236</cve>
     <cve>CVE-2026-57434</cve>
@@ -565,6 +571,7 @@
     <cve>CVE-2026-79772</cve>
     <cve>CVE-2026-126063</cve>
     <cve>CVE-2026-126064</cve>
+    <cve>CVE-2026-126203</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[

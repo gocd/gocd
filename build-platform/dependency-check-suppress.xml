@@ -541,7 +541,7 @@
 
   <suppress>
     <notes><![CDATA[
-    Suppress false positive from nokogiri. GoCD does not use Ruby/nokogiri to validate docs against HTML schemas, let
+    Suppress false positives from rails dependencies nokogiri/loofah. GoCD does not use these to validate docs against HTML schemas, let
     users influence CSS selectors, or use XSLT transforms - so is not vulnerable to these vulnerabilities.
     ]]></notes>
     <packageUrl regex="true">^pkg:gem/(loofah|nokogiri)@.*$</packageUrl>
@@ -558,9 +558,9 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
-    Suppress false positives from loofah/nokogiri which only affect CRuby; not JRuby.
+    Suppress false positives from rails dependencies loofah/nokogiri/rails-html-sanitzier which only affect CRuby; not JRuby.
     ]]></notes>
-    <packageUrl regex="true">^pkg:gem/(loofah|nokogiri)@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:gem/(loofah|nokogiri|rails-html-sanitizer)@.*$</packageUrl>
     <cve>CVE-2026-57235</cve>
     <cve>CVE-2026-57236</cve>
     <cve>CVE-2026-57434</cve>
@@ -571,6 +571,8 @@
     <cve>CVE-2026-79772</cve>
     <cve>CVE-2026-126063</cve>
     <cve>CVE-2026-126064</cve>
+    <cve>CVE-2026-126068</cve>
+    <cve>CVE-2026-126069</cve>
     <cve>CVE-2026-126203</cve>
   </suppress>
   <suppress>

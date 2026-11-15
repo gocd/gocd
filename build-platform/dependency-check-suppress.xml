@@ -571,9 +571,9 @@
     <cve>CVE-2026-79772</cve>
     <cve>CVE-2026-126063</cve>
     <cve>CVE-2026-126064</cve>
-    <cve>CVE-2026-126068</cve>
-    <cve>CVE-2026-126069</cve>
     <cve>CVE-2026-126203</cve>
+    <cve>CVE-2026-128068</cve>
+    <cve>CVE-2026-128069</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[

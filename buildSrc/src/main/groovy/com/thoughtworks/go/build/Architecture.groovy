@@ -45,7 +45,7 @@ enum Architecture {
       case ['all', 'noarch', 'none', 'N/A', '-', '']: return all
       case ['x64', 'amd64', 'x86_64', 'x86-64']: return x64
       case ['aarch64', 'arm64', 'arm64/v8', 'arm64v8', 'armv8a']: return aarch64
-      default: throw IllegalArgumentException("Arch/machine type [${arch}] is unknown or not supported.")
+      default: throw new IllegalArgumentException("Arch/machine type [${arch}] is unknown or not supported.")
     }
   }
 

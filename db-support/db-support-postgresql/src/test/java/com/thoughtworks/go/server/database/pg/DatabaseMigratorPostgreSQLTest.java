@@ -24,7 +24,6 @@ import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
-import org.testcontainers.utility.DockerImageName;
 
 import java.time.Duration;
 
@@ -32,7 +31,7 @@ import java.time.Duration;
 @EnabledOnOs({OS.LINUX, OS.MAC})
 class DatabaseMigratorPostgreSQLTest extends AbstractMigratorIntegrationTest {
     @Container
-    private final PostgreSQLContainer postgresqlContainer = new PostgreSQLContainer(DockerImageName.parse("docker.io/library/postgres:18").asCompatibleSubstituteFor("postgres"))
+    private final PostgreSQLContainer postgresqlContainer = new PostgreSQLContainer("postgres:18")
         .waitingFor(new WaitAllStrategy()
             .withStrategy(Wait.forLogMessage(".*database system is ready to accept connections.*\\s", 2))
             .withStrategy(Wait.forListeningPort())

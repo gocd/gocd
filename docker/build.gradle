@@ -39,7 +39,7 @@ def configureDockerRegistryMirror = tasks.register('configureDockerRegistryMirro
     // Docker uses the wrong credentials when trying to use a registry mirror, so we set the docker.gocd.io creds for Docker Hub
     dockerConfig.text = JsonOutput.toJson([
       auths: [
-        "https://index.docker.io/v1/": [
+        "https://docker.gocd.io/": [
           auth: "${System.env.DOCKERHUB_MIRROR_USERNAME}:${System.env.DOCKERHUB_MIRROR_PASSWORD}".bytes.encodeBase64().toString()
         ]
       ]

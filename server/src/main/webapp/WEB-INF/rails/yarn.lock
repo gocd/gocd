@@ -4129,9 +4129,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fork-ts-checker-webpack-plugin@npm:^9.1.0":
-  version: 9.1.0
-  resolution: "fork-ts-checker-webpack-plugin@npm:9.1.0"
+"fork-ts-checker-webpack-plugin@npm:^9.1.1":
+  version: 9.1.1
+  resolution: "fork-ts-checker-webpack-plugin@npm:9.1.1"
   dependencies:
     "@babel/code-frame": "npm:^7.16.7"
     chalk: "npm:^4.1.2"
@@ -4148,7 +4148,7 @@ __metadata:
   peerDependencies:
     typescript: ">3.6.0"
     webpack: ^5.11.0
-  checksum: 10c0/b4acdf400862af5f57d3e159b3a444e7f9f73e9f4609d54604c3810f75f8adcea0165a8b17ee856ed3c65591d058ffd73cd08d273e289d4952844e75f6efa85d
+  checksum: 10c0/6ad8f4e1b0163284e60259390b18cd301213b85213216c9836a33340b43629edad0fbdeb772ca599bbe4e44dbed90846929b7792c7d0d121fb5b5727fae98c70
   languageName: node
   linkType: hard
 
@@ -4451,7 +4451,7 @@ __metadata:
     eslint-webpack-plugin: "npm:^6.0.0"
     file-loader: "npm:^6.2.0"
     filesize: "npm:^11.0.32"
-    fork-ts-checker-webpack-plugin: "npm:^9.1.0"
+    fork-ts-checker-webpack-plugin: "npm:^9.1.1"
     foundation-sites: "npm:^6.9.0"
     fs-extra: "npm:^11.4.1"
     globals: "npm:^17.14.0"

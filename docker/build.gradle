@@ -34,15 +34,11 @@ def configureDockerRegistryMirror = tasks.register('configureDockerRegistryMirro
     logger.lifecycle("Configuring dockerhub mirror credentials, assuming docker.gocd.io is configured...")
     def dockerConfig = file("${System.properties['user.home']}/.docker/config.json")
     dockerConfig.parentFile.mkdirs()
-
-    def encodedAuth = "${System.env.DOCKERHUB_MIRROR_USERNAME}:${System.env.DOCKERHUB_MIRROR_PASSWORD}".bytes.encodeBase64().toString()
     dockerConfig.text = JsonOutput.toJson([
       auths: [
-        "docker.gocd.io": [ auth: encodedAuth ],
-        // See https://github.com/moby/moby/issues/30880#issuecomment-798807332 for why normal docker login to docker.gocd.io
-        // for use as a registry mirror doesn't always work. Some Docker daemons or clients use the wrong credentials when trying
-        // to use a registry mirror, so we also set the docker.gocd.io creds for Docker Hub, which is not great.
-        "https://index.docker.io/v1/": [ auth: encodedAuth ]
+        "docker.gocd.io": [
+          auth: "${System.env.DOCKERHUB_MIRROR_USERNAME}:${System.env.DOCKERHUB_MIRROR_PASSWORD}".bytes.encodeBase64().toString()
+        ],
       ]
     ])
   }

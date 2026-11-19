@@ -34,5 +34,3 @@ dependencies {
   testImplementation rootProject.deps.testcontainersJunit
   testImplementation rootProject.deps.testcontainersMysql
 }
-
-test.dependsOn ':docker:configureDockerRegistryMirror'

@@ -24,11 +24,6 @@ grep -oE '<(cve|vulnerabilityName)>(CVE|GHSA).*</(cve|vulnerabilityName)>' "${GO
   | sed -E 's/<(cve|vulnerabilityName)>(.*)<\/(cve|vulnerabilityName)>/  - id: \2/' \
   >> "${TRIVY_IGNORE}"
 
-pushd "${GOCD_ROOT}"
-unset GO_SERVER_URL
-./gradlew configureDockerRegistryMirror --console=colored
-popd
-
 for image in "${SCAN_ROOT}"/*.tar; do
   echo "Scanning $image..."
   rm -rf "$image-unpacked" && mkdir "${image}-unpacked"

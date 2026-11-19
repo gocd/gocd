@@ -33,5 +33,3 @@ dependencies {
   testRuntimeOnly rootProject.deps.junit5Engine
   testRuntimeOnly rootProject.deps.junit5PlatformLauncher
 }
-
-test.dependsOn ':docker:configureDockerRegistryMirror'

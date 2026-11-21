@@ -24,7 +24,7 @@
     GoCD does not use Spring's ServiceExporter in a vulnerable way, as described in https://nvd.nist.gov/vuln/detail/CVE-2016-1000027
     https://github.com/spring-projects/spring-framework/issues/24434 and https://blog.gypsyengineer.com/en/security/detecting-dangerous-spring-exporters-with-codeql.html
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*$</packageUrl>
     <cve>CVE-2016-1000027</cve>
   </suppress>
   <suppress>
@@ -33,7 +33,7 @@
     deployment, GoCD uses Jetty rather than Tomcat, and does not have the vulnerable classloader from Tomcat
     required to exploit the vulnerability.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*$</packageUrl>
     <cve>CVE-2022-22965</cve>
   </suppress>
   <suppress>
@@ -41,7 +41,7 @@
     GoCD does not allow SpEL expressions to be supplied by users anywhere that can be found, so we do not seem to be
     vulnerable to these issues.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework(\.security)?/spring-.*$</packageUrl>
     <cve>CVE-2022-22950</cve>
     <cve>CVE-2023-20861</cve>
     <cve>CVE-2023-20863</cve>
@@ -51,7 +51,10 @@
     <cve>CVE-2026-41851</cve>
     <cve>CVE-2026-41852</cve>
     <cve>CVE-2026-47886</cve>
+    <cve>CVE-2026-59273</cve>
     <cve>CVE-2026-59283</cve>
+    <cve>CVE-2026-59430</cve>
+    <cve>CVE-2026-59431</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[
@@ -59,18 +62,19 @@
     as documented in https://spring.io/blog/2022/04/13/spring-framework-data-binding-rules-vulnerability-cve-2022-22968 nor case insensitive
     authorizations in the related issue at https://spring.io/security/cve-2024-38827 or https://spring.io/security/cve-2025-22233
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*$</packageUrl>
     <cve>CVE-2022-22968</cve>
     <cve>CVE-2024-38820</cve> <!-- trivy only -->
     <cve>CVE-2024-38827</cve>
     <cve>CVE-2025-22233</cve>
+    <cve>CVE-2026-59374</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[
     GoCD is not vulnerable to these as we do not rely on data binding for dealing with MultipartFile or javax.servlet.Part objects into models
     nor allow users to control data binding paths.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*$</packageUrl>
     <cve>CVE-2022-22970</cve>
     <cve>CVE-2026-59282</cve>
   </suppress>
@@ -80,7 +84,7 @@
     these only affect applications that use UriComponentsBuilder along with validation checks on the host. GoCD and its dependencies
     don't use UriComponentsBuilder at all.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*$</packageUrl>
     <cve>CVE-2024-22243</cve>
     <cve>CVE-2024-22259</cve>
     <cve>CVE-2024-22262</cve>
@@ -89,21 +93,21 @@
     <notes><![CDATA[
     GoCD does not use server sent events as required to be affected by https://spring.io/security/cve-2026-22735
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*$</packageUrl>
     <cve>CVE-2026-22735</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[
     GoCD does not use scripting enabled template views as required to be affected by https://spring.io/security/cve-2026-22737
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*$</packageUrl>
     <cve>CVE-2026-22737</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[
     These vulnerabilities only affects Spring WebFlux applications, which GoCD is not.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework(\.security)?/spring-.*@4\.[23].*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework(\.security)?/spring-.*$</packageUrl>
     <cve>CVE-2024-38821</cve>
     <cve>CVE-2026-22740</cve>
     <cve>CVE-2026-41839</cve>
@@ -117,7 +121,7 @@
     GoCD does not serve static assets from the filesystem via Spring Web resource handler mechanisms (it uses Jetty for
     static assets alongside custom handlers for artifact downloading.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*$</packageUrl>
     <cve>CVE-2026-22741</cve>
     <cve>CVE-2026-22745</cve>
     <cve>CVE-2026-41841</cve>
@@ -129,7 +133,7 @@
     GoCD does not appear to configure any `/**` mappings within its configuration, so does not appear to be vulnerable to
     as required to exploit https://spring.io/security/cve-2026-41844
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*$</packageUrl>
     <cve>CVE-2026-41844</cve>
   </suppress>
   <suppress>
@@ -137,17 +141,18 @@
     GoCD does not use parse/use JSPs, so is not vulnerable to the issues with `JavaScriptUtils.javaScriptEscape`
     or JSP Form tags as described in https://spring.io/security/cve-2026-41845 and https://spring.io/security/cve-2026-41846
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*$</packageUrl>
     <cve>CVE-2026-41845</cve>
     <cve>CVE-2026-41846</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[
-    It is not believed that there any way within GoCD for a user to supply patterns that will end up in AntPathMatchers
-    as required to exploit https://spring.io/security/cve-2026-41848
+    GoCD is not believed to be vulnerable to these issues with patterns that will end up in AntPathMatchers and does not
+    use regexes in @RequestMappings at all, or for path components.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*$</packageUrl>
     <cve>CVE-2026-41848</cve>
+    <cve>CVE-2026-59429</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[
@@ -157,14 +162,14 @@
     masquerading to exploit, and is likely not a realistic attack vector without much more serious breaches. Additionally,
     it requires an external WAF, and allows only WAF bypass. Risk is likely to be zero to minimal.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*$</packageUrl>
     <cve>CVE-2026-41853</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[
     GoCD does not use XsltView or UrlFileNameView rendering so is not subject to these vulnerabilities.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*$</packageUrl>
     <cve>CVE-2026-47884</cve>
     <cve>CVE-2026-47887</cve>
   </suppress>
@@ -173,21 +178,21 @@
     While GoCD uses FreeMarker views and SpringTemplateLoader, it does not allow view names to be supplied from
     arbitrary user input, so not vulnerable to https://spring.io/security/cve-2026-59280
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*$</packageUrl>
     <cve>CVE-2026-59280</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[
     GoCD does not rely on data binding getFieldError(s) to render responses that would allow cross-site scripting.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*$</packageUrl>
     <cve>CVE-2026-59281</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[
     GoCD does not dynamically build Content-Disposition headers via Spring based on untrusted user input.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*$</packageUrl>
     <cve>CVE-2026-59314</cve>
   </suppress>
 
@@ -197,7 +202,7 @@
     ETags and If-Match/If-None-Match on resources it appears to only do so via Rails and Spark
     framework endpoints, not anything that goes via Spring Web.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-web@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-web@.*$</packageUrl>
     <cve>CVE-2024-38809</cve>
   </suppress>
   <suppress>
@@ -205,7 +210,7 @@
     GoCD does not appear to be vulnerable to this as it does not bind @RequestBody byte[]
     attributes as required by https://spring.io/security/cve-2024-38828 to be an issue.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-web@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-web@.*$</packageUrl>
     <cve>CVE-2024-38828</cve>
   </suppress>
 
@@ -213,7 +218,7 @@
     <notes><![CDATA[
     This appears to be a false positive. Vulnerability is only reported against Spring `5.2.0` to `5.2.3` (not 4.3)
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-webmvc@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-webmvc@.*$</packageUrl>
     <cve>CVE-2020-5397</cve>
   </suppress>
   <suppress>
@@ -223,7 +228,7 @@
     This is because in Spring 4.3 all of these log statements are at TRACE level, which are very unlikely to be enabled
     for a GoCD instance in production, and not in the default configuration
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-webmvc@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-webmvc@.*$</packageUrl>
     <cve>CVE-2021-22060</cve>
   </suppress>
 

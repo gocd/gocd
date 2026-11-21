@@ -5,25 +5,32 @@ Function "OnInitCallback"
   ; do nothing
 FunctionEnd
 
+; Working data which the server (re)generates as needed. Excludes logs, config, artifacts, DB etc. Not needed on upgrade,
+; since the server replaces or cleans these itself on startup.
+Function "un.RemoveServerWorkingData"
+  ${LogText} "Removing server working data..."
+  Delete "$INSTDIR\cruise.war"
+  RMDir /r "$INSTDIR\felix-cache"
+  Delete "$INSTDIR\plugins\go-plugins-all.zip"
+  RMDir /r "$INSTDIR\plugins\bundled"
+  RMDir /r "$INSTDIR\plugins_work"
+  RMDir /r "$INSTDIR\run"
+  RMDir /r "$INSTDIR\tmp"
+  RMDir /r "$INSTDIR\work"
+  ; explicitly clear errors, if any
+  ClearErrors
+FunctionEnd
+
+!insertmacro RemoveInstallerManagedFiles "un."
+
 Function "un.PostUninstall"
   Call "un.DisableFirewallPorts"
 
   Delete "$DESKTOP\Go ${COMPONENT_NAME}.url"
 
-  ; surgically remove only some files, leave the DB, config etc around
-  RMDir /r "$INSTDIR\bin"
-  RMDir /r "$INSTDIR\jre"
-  RMDir /r "$INSTDIR\lib"
+  Call "un.RemoveInstallerManagedFiles"
+  Call "un.RemoveServerWorkingData"
   RMDir /r "$INSTDIR\logs"
-  RMDir /r "$INSTDIR\run"
-  RMDir /r "$INSTDIR\tanuki"
-  RMDir /r "$INSTDIR\wrapper"
-  RMDir /r "$INSTDIR\tmp"
-  RMDir /r "$INSTDIR\work"
-  RMDir /r "$INSTDIR\plugins_work"
-  RMDir /r "$INSTDIR\felix-cache"
-  Delete "$INSTDIR\gocd.ico"
-  Delete "$INSTDIR\cruise.war"
 FunctionEnd
 
 Function "BeforeUpgrade"
@@ -32,26 +39,7 @@ Function "BeforeUpgrade"
   ; this will uninstall the old service, and install a new one, just to make sure that changes to tanuki, if any happen correctly
   Call UninstallService
 
-  ; remove legacy files (from pre 19.5 installers, if present)
-  Delete "$INSTDIR\jre" ; the old jre
-  Delete "$INSTDIR\config\wrapper-server.conf"
-  Delete "$INSTDIR\cruise.war"
-  Delete "$INSTDIR\go.jar"
-  Delete "$INSTDIR\LICENSE.dos"
-  Delete "$INSTDIR\cruisewrapper.exe"
-  Delete "$INSTDIR\server.cmd"
-  Delete "$INSTDIR\start-server.bat"
-  Delete "$INSTDIR\stop-server.bat"
-
-  ; the jetty work dir
-  RMDir /r "$INSTDIR\work"
-
-  ; remove legacy environment variables (from pre 19.5 installers), if present
-  DeleteRegValue HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "GO_SERVER_JAVA_HOME"
-  DeleteRegValue HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "CRUISE_SERVER_DIR"
-
-  ; explicitly clear errors, if any
-  ClearErrors
+  Call RemoveInstallerManagedFiles
 FunctionEnd
 
 Function "AfterUpgrade"

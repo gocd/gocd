@@ -237,8 +237,6 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
 //        cmd += ['--debug']
 //        cmd += ['-e']
 //        cmd += ['--debug-workspace']
-        cmd += ['--conflicts', installerType.baseName.replaceFirst(/^go-/, 'cruise-')]
-        cmd += ['--replaces', installerType.baseName.replaceFirst(/^go-/, 'cruise-')]
         cmd += ['--force']
         cmd += ['-s', 'dir']
         cmd += ['-C', buildRoot.path]

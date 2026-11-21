@@ -14,4 +14,6 @@
   limitations under the License.
 %>
 
-    rm -rf /var/lib/go-agent/{agent-launcher.jar,agent.jar,tfs-impl.jar,agent-plugins.zip} /var/lib/go-agent/*agent-launcher.jar
+    # Ensure the bootstrapper starts with its bundled launcher, rather than the previous version's, in case the
+    # bootstrapper-to-launcher contract or required Java version changed.
+    rm -f /var/lib/go-agent/agent-launcher.jar

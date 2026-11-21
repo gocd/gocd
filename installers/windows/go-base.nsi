@@ -80,8 +80,9 @@ RequestExecutionLevel admin
 ; Use these labels for all buttons
 MiscButtonText "< &Back" "&Next >" "&Cancel" "&Finish"
 
-; The default installation directory
-InstallDir "$PROGRAMFILES\Go ${COMPONENT_NAME}"
+; The default installation directory for fresh installs. Upgrades use the existing location via InstallDirRegKey.
+; Note: the registry view is deliberately left as the 32-bit default so upgrades of existing installs are detected.
+InstallDir "$PROGRAMFILES64\Go ${COMPONENT_NAME}"
 
 ; Registry key to check for directory (so if you install again, it will overwrite the old one automatically)
 InstallDirRegKey HKLM "Software\ThoughtWorks Studios\Go ${COMPONENT_NAME}" "Install_Dir"
@@ -185,10 +186,6 @@ Section "Install"
     Call BeforeUpgrade
     File /r ${GOCD_ICON}
     File /r /x "wrapper-properties.conf" ${INSTALLER_CONTENTS}\*.*
-
-    ; Copy over existing wrapper-properties.conf (from a previous install of GoCD < 19.6)
-    Call CopyOldWrapperPropertiesBeforeGoCD19_5
-
     Call AfterUpgrade
   ${Else}
     ${LogText} "Performing a fresh install"
@@ -201,12 +198,27 @@ Section "Install"
   Call SetupUninstaller
 SectionEnd
 
-Function "CopyOldWrapperPropertiesBeforeGoCD19_5"
-  ${If} ${FileExists} "$INSTDIR\config\wrapper-properties.conf"
-    CopyFiles "$INSTDIR\config\wrapper-properties.conf" "$INSTDIR\wrapper-config\wrapper-properties.conf"
-    Delete "$INSTDIR\config\wrapper-properties.conf"
-  ${EndIf}
-FunctionEnd
+; Files and directories entirely owned by the installer. Removed before extracting a newer version, so that files which
+; were removed or renamed (e.g. by a JRE version change) do not linger and get mixed with the new ones, and on uninstall.
+;
+; User data and configuration are deliberately left alone, such as `config`, `db`, `artifacts`, `data`, `logs`,
+; `plugins/external`, `libs` (user-provided additional jars), agent `pipelines` and `wrapper-config/wrapper-properties.conf`.
+;
+; Shared between installer and uninstaller. See https://nsis.sourceforge.io/Sharing_functions_between_Installer_and_Uninstaller
+!macro RemoveInstallerManagedFiles maybePrefix
+  Function "${maybePrefix}RemoveInstallerManagedFiles"
+    ${LogText} "Removing installer-managed files..."
+    Delete "$INSTDIR\gocd.ico"
+    RMDir /r "$INSTDIR\bin"
+    RMDir /r "$INSTDIR\jre"
+    RMDir /r "$INSTDIR\lib"
+    RMDir /r "$INSTDIR\wrapper"
+    ; explicitly clear errors, if any
+    ClearErrors
+  FunctionEnd
+!macroend
+
+!insertmacro RemoveInstallerManagedFiles ""
 
 Function "SetupUninstaller"
   WriteUninstaller "uninstall.exe"

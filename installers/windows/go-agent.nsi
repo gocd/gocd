@@ -19,23 +19,11 @@ Function "BeforeUpgrade"
   ; this will uninstall the old service, and install a new one, just to make sure that changes to tanuki, if any happen correctly
   Call UninstallService
 
-  ; remove legacy files (from pre 19.5 installers), if present
-  Delete "$INSTDIR\agent-bootstrapper.jar"
-  Delete "$INSTDIR\agent-launcher.jar"
-  Delete "$INSTDIR\*agent-launcher.jar"
-  Delete "$INSTDIR\agent.jar"
-  Delete "$INSTDIR\tfs-impl.jar"
-  Delete "$INSTDIR\agent-plugins.jar"
-  Delete "$INSTDIR\cruisewrapper.exe"
-  Delete "$INSTDIR\LICENSE.dos"
-  Delete "$INSTDIR\agent.cmd"
-  Delete "$INSTDIR\start-agent.bat"
-  Delete "$INSTDIR\stop-agent.bat"
+  Call RemoveInstallerManagedFiles
 
-  ; remove legacy environment variables (from pre 19.5 installers), if present
-  DeleteRegValue HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "GO_AGENT_JAVA_HOME"
-  DeleteRegValue HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "GO_SERVER_URL"
-  DeleteRegValue HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "GO_AGENT_DIR"
+  ; Ensure the bootstrapper starts with its bundled launcher, rather than the previous version's, in case the
+  ; bootstrapper-to-launcher contract or required Java version changed.
+  Delete "$INSTDIR\agent-launcher.jar"
 
   ; explicitly clear errors, if any
   ClearErrors
@@ -68,7 +56,7 @@ FunctionEnd
 
 Function "MaybeCreateDefaultWrapperProperties"
   StrCmp $GO_SERVER_URL "" 0 +2
-    StrCpy $GO_SERVER_URL "http://127.0.0.1:8153/go"
+    StrCpy $GO_SERVER_URL "http://localhost:8153/go"
 
   ${LogText} "Checking if default wrapper-properties.conf exists"
   ${IfNot} ${FileExists} "$INSTDIR\wrapper-config\wrapper-properties.conf"

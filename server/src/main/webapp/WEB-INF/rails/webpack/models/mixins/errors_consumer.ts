@@ -191,8 +191,10 @@ function addErrorsToModel(errors: ErrorMap, model: any, path: string, unmatched:
     const container = resolveErrorsHolder(model, fieldName); // may differ for each error key
     const matchesField = isAwareOfField(container, fieldName);
     for (const msg of errors[key]) {
-      if (matchesField && !container.errors().hasError(fieldName, msg)) {
-        container.errors().add(fieldName, msg);
+      if (matchesField) {
+        if (!container.errors().hasError(fieldName, msg)) {
+          container.errors().add(fieldName, msg);
+        }
       } else {
         addToUnmatchIfNotPluginProperty(container, unmatched, path, key, msg);
       }
@@ -202,8 +204,10 @@ function addErrorsToModel(errors: ErrorMap, model: any, path: string, unmatched:
 
 //todo: Remove this special handling for Configuration class and make Configuration class an ErrorConsumer by containing Errors field.
 function addToUnmatchIfNotPluginProperty(container: any, unmatched: Errors, path: string, key: string, msg: string) {
-  if(container instanceof Configuration) {
-    container.errors!.push(msg);
+  if (container instanceof Configuration) {
+    if (!container.errors!.includes(msg)) {
+      container.errors!.push(msg);
+    }
   } else {
     unmatched.add(next(path, key), msg);
   }

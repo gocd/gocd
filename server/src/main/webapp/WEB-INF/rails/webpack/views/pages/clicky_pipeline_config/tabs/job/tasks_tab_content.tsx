@@ -20,6 +20,8 @@ import {MithrilComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {Errors} from "models/mixins/errors";
+import {BaseErrorsConsumer} from "models/mixins/errors_consumer";
 import {Job} from "models/pipeline_configs/job";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {AbstractTask, Task} from "models/pipeline_configs/task";
@@ -49,6 +51,8 @@ import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_mod
 
 export interface Attrs {
   tasks: Stream<Task[]>;
+  stageName: string;
+  jobName: string;
   isEditable: boolean;
   pluginInfos: Stream<PluginInfos>;
   autoSuggestions: Stream<any>;
@@ -111,8 +115,9 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
   onTaskSave(vnode: m.Vnode<Attrs, State>): Promise<any> {
     const taskToBeAdded = vnode.state.modal.getTask();
     if (taskToBeAdded.isValid()) {
+      const taskIndex = vnode.attrs.tasks().length;
       vnode.attrs.tasks().push(taskToBeAdded);
-      return this.performPipelineSave(vnode, () => {
+      return this.performPipelineSave(vnode, taskIndex, () => {
         vnode.attrs.tasks().pop();
       });
     }
@@ -127,7 +132,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
       tasks[index] = updated;
       vnode.attrs.tasks(tasks);
 
-      return this.performPipelineSave(vnode, () => {
+      return this.performPipelineSave(vnode, index, () => {
         const tasks  = vnode.attrs.tasks();
         tasks[index] = old;
         vnode.attrs.tasks(tasks);
@@ -200,13 +205,26 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
   }
 
   private onTaskSaveFailure(vnode: m.Vnode<Attrs, State>,
+                            taskIndex: number,
                             onFailureCallback: () => any,
                             errorResponse?: string) {
     if (errorResponse) {
       const parsed = JSON.parse(errorResponse);
       if (parsed.body) {
         const errorData        = JSON.parse(parsed.body);
-        const unconsumedErrors = vnode.state.modal.getTask()!.consumeErrorsResponse(errorData.data);
+        const unconsumedErrors = new Errors();
+        const stages: any[]    = [];
+        const stageIndex       = errorData.data?.stages?.findIndex((stage: any) => stage.name === vnode.attrs.stageName);
+        const stage            = errorData.data?.stages?.[stageIndex];
+        const jobIndex         = stage?.jobs?.findIndex((job: any) => job.name === vnode.attrs.jobName);
+        if (stage?.jobs?.[jobIndex]?.tasks?.[taskIndex]) {
+          const tasks: Task[] = [];
+          const jobs: any[]   = [];
+          tasks[taskIndex]    = vnode.state.modal.getTask();
+          jobs[jobIndex]     = {tasks};
+          stages[stageIndex] = {jobs};
+        }
+        BaseErrorsConsumer.consume(errorData.data, {stages}, "pipeline", unconsumedErrors);
         vnode.state.modal.flashMessage.setMessage(MessageType.alert, <span>{errorData.message}<br/> {unconsumedErrors.allErrorsForDisplay().join(" ")}</span>);
       } else {
         vnode.state.modal.flashMessage.setMessage(MessageType.alert, parsed.message);
@@ -219,11 +237,11 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
     m.redraw.sync();
   }
 
-  private performPipelineSave(vnode: m.Vnode<Attrs, State>, onFailureCallback: () => any) {
+  private performPipelineSave(vnode: m.Vnode<Attrs, State>, taskIndex: number, onFailureCallback: () => any) {
     return vnode.attrs.pipelineConfigSave()
                 .then(vnode.state.modal.close.bind(vnode.state.modal))
                 .catch((errorResponse?: string) => {
-                  this.onTaskSaveFailure(vnode, onFailureCallback, errorResponse);
+                  this.onTaskSaveFailure(vnode, taskIndex, onFailureCallback, errorResponse);
                 });
   }
 
@@ -351,7 +369,9 @@ export class TasksTabContent extends TabContent<Job> {
                      flashMessage: FlashMessageModelWithTimeout,
                      save: () => Promise<any>,
                      reset: () => any): m.Children {
-    return <TasksWidget pluginInfos={this.pluginInfos}
+    return <TasksWidget stageName={this.entityPath!.stage_name!}
+                        jobName={this.entityPath!.job_name!}
+                        pluginInfos={this.pluginInfos}
                         autoSuggestions={this.autoSuggestions}
                         pipelineConfigSave={save}
                         flashMessage={flashMessage}

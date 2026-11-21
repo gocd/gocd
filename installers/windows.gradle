@@ -21,18 +21,29 @@ def destFile(String url) {
   new File(gradle.gradleUserHomeDir, "download-cache/${TextUtils.md5Hex(url)}/${new File(URI.create(url).toURL().path).name}")
 }
 
-tasks.register('downloadWindowsJreChecksum', DownloadFile) {
-  def goVersions = rootProject.goVersions as GoVersions
-  src goVersions.packagedJavaVersion.toSha256SumURLFor(OperatingSystem.windows, Architecture.x64)
-  dest destFile(src.toString())
+// A single installer bundles a JRE for each architecture, selecting the native one at install time
+static List<Architecture> windowsJreArchitectures() {
+  [Architecture.x64, Architecture.aarch64]
 }
 
-tasks.register('downloadWindowsJre', DownloadFile) {
-  dependsOn downloadWindowsJreChecksum
-  def goVersions = rootProject.goVersions as GoVersions
-  src goVersions.packagedJavaVersion.toDownloadURLFor(OperatingSystem.windows, Architecture.x64)
-  dest destFile(src.toString())
-  checksum = { downloadWindowsJreChecksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
+TaskProvider<DownloadFile> windowsJreDownloadTask(Architecture arch) {
+  tasks.named("downloadWindowsJre${arch.name().capitalize()}", DownloadFile) as TaskProvider<DownloadFile>
+}
+
+windowsJreArchitectures().each { Architecture arch ->
+  def javaVersion = (rootProject.goVersions as GoVersions).packagedJavaVersion
+
+  def checksumTask = tasks.register("downloadWindowsJreChecksum${arch.name().capitalize()}", DownloadFile) {
+    src javaVersion.toSha256SumURLFor(OperatingSystem.windows, arch)
+    dest destFile(src.toString())
+  }
+
+  tasks.register("downloadWindowsJre${arch.name().capitalize()}", DownloadFile) {
+    dependsOn checksumTask
+    src javaVersion.toDownloadURLFor(OperatingSystem.windows, arch)
+    dest destFile(src.toString())
+    checksum = { checksumTask.get().outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
+  }
 }
 
 def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installerType, Zip genericZipTask, File buildRoot) {
@@ -40,13 +51,16 @@ def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installe
     group = project.name
     description = "Build the ${installerType.baseName} windows (exe) installer"
 
-    dependsOn downloadWindowsJre
+    dependsOn windowsJreArchitectures().collect { windowsJreDownloadTask(it) }
     dependsOn genericZipTask
 
     def goVersions = rootProject.goVersions as GoVersions
     inputs.property('goVersions', goVersions)
 
     def installerBaseDirName = "${installerType.baseName}-${goVersions.goVersion}"
+    Map<Architecture, Provider<File>> jreZips = windowsJreArchitectures().collectEntries { Architecture arch ->
+      [(arch): windowsJreDownloadTask(arch).map { it.outputs.files.singleFile }]
+    }
 
     def injected = project.objects.newInstance(Injected)
     doFirst {
@@ -94,15 +108,17 @@ def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installe
           filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.newInstance("dos"))
         }
 
-        from(zipTree(downloadWindowsJre.outputs.files.singleFile)) {
-          eachFile { FileCopyDetails fcd ->
-            List<String> segments = fcd.relativePath.segments
-            segments.set(1, "jre")
-            fcd.relativePath = new RelativePath(!fcd.isDirectory(), (segments as String[]))
+        jreZips.each { Architecture arch, Provider<File> jreZip ->
+          from(zipTree(jreZip.get())) {
+            eachFile { FileCopyDetails fcd ->
+              List<String> segments = fcd.relativePath.segments
+              segments.set(1, "jre")
+              fcd.relativePath = new RelativePath(!fcd.isDirectory(), (segments as String[]))
+            }
+            includeEmptyDirs = false
+            // relative to parent copy task's `into`
+            into new File(buildRoot, "jre-${arch.canonicalName}").name
           }
-          includeEmptyDirs = false
-          // relative to parent copy task's `into`
-          into installerBaseDirName
         }
       }
     }
@@ -154,6 +170,8 @@ def configureNSIS(Task packageTask, InstallerType installerType, File buildRoot,
         "-DGOCD_ICON=${icon}",
         "-DGOCD_LICENSE_FILE=${licenseSourceFile}",
         "-DINSTALLER_CONTENTS=${installerContents.path}",
+        "-DJRE_AARCH64_DIR=${new File(buildRoot, "jre-${Architecture.aarch64.canonicalName}").path}",
+        "-DJRE_X64_DIR=${new File(buildRoot, "jre-${Architecture.x64.canonicalName}").path}",
         "-DOUTPUT_FILE=${outputFile.path}",
         "-DUNINSTALL_MANIFEST_FILE=${unInstallManifestFile.path}",
         "-DWINDOWS_PRODUCT_VERSION=${goVersions.goVersion}.${goVersions.distVersion}",
@@ -199,7 +217,7 @@ def serverWindowsInstaller = tasks.register('serverWindowsInstaller') { thisTask
 [InstallerTypeAgent.instance, InstallerTypeServer.instance].each { installerType ->
   def packageTaskName = "${installerType.name}WindowsInstaller"
   tasks.register("${packageTaskName}Metadata", InstallerMetadataTask) {
-    // Installer supports all (64-bit) architectures, although the bundled JRE is currently x64 only
+    // Installer supports all (64-bit) architectures
     architecture = Architecture.all
     packagedJavaVersion = (rootProject.goVersions as GoVersions).packagedJavaVersion
     packageTask = project.tasks.named(packageTaskName)

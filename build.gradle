@@ -132,7 +132,7 @@ def libraries = [
   servletApi          : 'jakarta.servlet:jakarta.servlet-api:4.0.4',
   slf4jBom            : 'org.slf4j:slf4j-bom:2.0.20',
   spark               : 'com.sparkjava:spark-core:2.9.4',
-  spring              : 'org.springframework:spring-core:4.3.30.RELEASE',
+  spring              : 'org.springframework:spring-core:7.0.10',
   springSecurity      : 'org.springframework.security:spring-security-config:4.2.20.RELEASE',
   urlrewrite          : 'org.tuckey:urlrewritefilter:3.2.0',
   ztExec              : 'org.zeroturnaround:zt-exec:1.13.0',

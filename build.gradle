@@ -65,6 +65,12 @@ def goVersions = new GoVersions(
     patch:   1,    // set to `null` for most releases. Patch releases are "exceptional".
     build:   2
   ),
+
+  // Temporary overrides for platforms where Temurin has not yet published the default version above
+  packagedJavaVersionOverrides: [
+    // Temurin 25 is not yet published for Windows on ARM. Remove once it is available for the version above.
+    'windows-aarch64': new AdoptiumVersion(feature: 21, interim: 0, update: 12, patch: 1, build: 1),
+  ],
 )
 ext.goVersions = goVersions
 GoVersions.printGradleDebuggingOutputFor(gradle, goVersions)

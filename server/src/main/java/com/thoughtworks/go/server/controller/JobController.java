@@ -126,6 +126,12 @@ public class JobController {
         StageIdentifier stageIdentifier = restfulService.translateStageCounter(pipeline.getIdentifier(), stageName, stageCounter);
 
         JobInstance instance = jobInstanceDao.mostRecentJobWithTransitions(new JobIdentifier(stageIdentifier, jobName));
+
+        if (instance.isNull()) {
+            throw bomb(String.format("Job %s/%s/%s/%s/%s not found", pipelineName, pipelineCounter, stageName,
+                    stageCounter, jobName));
+        }
+
         return getModelAndView(instance);
     }
 

@@ -188,6 +188,14 @@ public class JobControllerTest {
         }
 
         @Test
+        void shouldReportJobNotFoundIfNoJobExistsWithTheGivenName() {
+            when(jobInstanceDao.mostRecentJobWithTransitions(any())).thenReturn(NullJobInstance.NAMELESS);
+            assertThatThrownBy(() -> jobController.jobDetail("p1", "1", "s1", "2", "no-such-job"))
+                .isExactlyInstanceOf(RuntimeException.class)
+                .hasMessage("Job p1/1/s1/2/no-such-job not found");
+        }
+
+        @Test
         void shouldAcceptLatestAsPipelineCounter() {
             ModelAndView modelAndView = jobController.jobDetail("p1", "latest", "s1", "12", "job1");
             assertThat(modelAndView.getModel().isEmpty()).isFalse();

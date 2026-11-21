@@ -141,7 +141,7 @@ def libraries = [
   assertJ             : 'org.assertj:assertj-core:3.27.7',
   assertJ_DB          : 'org.assertj:assertj-db:3.0.2',
   awaitility          : 'org.awaitility:awaitility:4.3.0',
-  dbunit              : 'org.dbunit:dbunit:3.5.2',
+  dbunit              : 'org.dbunit:dbunit:3.5.3',
   hamcrest            : 'org.hamcrest:hamcrest:3.0',
   jetBrainsAnnotations: 'org.jetbrains:annotations:26.1.0',
   jsonUnit            : 'net.javacrumbs.json-unit:json-unit-assertj:6.4.0',

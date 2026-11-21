@@ -113,6 +113,7 @@ def configureNSIS(Task packageTask, InstallerType installerType, File buildRoot,
   packageTask.with {
     def goVersions = rootProject.goVersions as GoVersions
     def outputFile = project.file("${destDir.path}/${installerType.baseName}-${goVersions.fullVersion}-jre-64bit-setup.exe")
+    outputs.file(outputFile)
 
     // pad enough zeros to be able to convert the version string using simple numbers, instead of version numbers
     def registryVersionString = "${goVersions.goVersion.split(/\./).collect { it.padLeft(2, '0') }.join()}${goVersions.distVersion.padLeft(5, '0')}"
@@ -173,11 +174,10 @@ def configureNSIS(Task packageTask, InstallerType installerType, File buildRoot,
   }
 }
 
-def agentWindows64bitExe = tasks.register('agentWindows64bitExe') { thisTask ->
+def agentWindowsInstaller = tasks.register('agentWindowsInstaller') { thisTask ->
   def installerType = InstallerTypeAgent.instance
   def buildRoot = project.file("${layout.buildDirectory.get()}/${installerType.baseName}/win/BUILD_ROOT")
   def destDir = project.file("${layout.buildDirectory.get()}/distributions/win")
-  outputs.dir(destDir)
 
   configureWindowsFilesystem(thisTask, installerType, agentGenericZip, buildRoot)
   configureNSIS(thisTask, installerType, buildRoot, destDir)
@@ -185,11 +185,10 @@ def agentWindows64bitExe = tasks.register('agentWindows64bitExe') { thisTask ->
   finalizedBy "${thisTask.name}Metadata"
 }
 
-def serverWindows64bitExe = tasks.register('serverWindows64bitExe') { thisTask ->
+def serverWindowsInstaller = tasks.register('serverWindowsInstaller') { thisTask ->
   def installerType = InstallerTypeServer.instance
   def buildRoot = project.file("${layout.buildDirectory.get()}/${installerType.baseName}/win/BUILD_ROOT")
   def destDir = project.file("${layout.buildDirectory.get()}/distributions/win")
-  outputs.dir(destDir)
 
   configureWindowsFilesystem(thisTask, installerType, serverGenericZip, buildRoot)
   configureNSIS(thisTask, installerType, buildRoot, destDir)
@@ -198,13 +197,14 @@ def serverWindows64bitExe = tasks.register('serverWindows64bitExe') { thisTask -
 }
 
 [InstallerTypeAgent.instance, InstallerTypeServer.instance].each { installerType ->
-  def packageTaskName = "${installerType.name}Windows64bitExe"
+  def packageTaskName = "${installerType.name}WindowsInstaller"
   tasks.register("${packageTaskName}Metadata", InstallerMetadataTask) {
-    architecture = Architecture.x64
+    // Installer supports all (64-bit) architectures, although the bundled JRE is currently x64 only
+    architecture = Architecture.all
     packagedJavaVersion = (rootProject.goVersions as GoVersions).packagedJavaVersion
     packageTask = project.tasks.named(packageTaskName)
     type = installerType
   }
 }
 
-assemble.dependsOn(agentWindows64bitExe, serverWindows64bitExe)
+assemble.dependsOn(agentWindowsInstaller, serverWindowsInstaller)

@@ -31,7 +31,7 @@ TaskProvider<DownloadFile> windowsJreDownloadTask(Architecture arch) {
 }
 
 windowsJreArchitectures().each { Architecture arch ->
-  def javaVersion = (rootProject.goVersions as GoVersions).packagedJavaVersion
+  def javaVersion = (rootProject.goVersions as GoVersions).packagedJavaVersionFor(OperatingSystem.windows, arch)
 
   def checksumTask = tasks.register("downloadWindowsJreChecksum${arch.name().capitalize()}", DownloadFile) {
     src javaVersion.toSha256SumURLFor(OperatingSystem.windows, arch)
@@ -219,7 +219,7 @@ def serverWindowsInstaller = tasks.register('serverWindowsInstaller') { thisTask
   tasks.register("${packageTaskName}Metadata", InstallerMetadataTask) {
     // Installer supports all (64-bit) architectures
     architecture = Architecture.all
-    packagedJavaVersion = (rootProject.goVersions as GoVersions).packagedJavaVersion
+    packagedJavaVersion = (rootProject.goVersions as GoVersions).packagedJavaVersionFor(OperatingSystem.windows, Architecture.x64)
     packageTask = project.tasks.named(packageTaskName)
     type = installerType
   }

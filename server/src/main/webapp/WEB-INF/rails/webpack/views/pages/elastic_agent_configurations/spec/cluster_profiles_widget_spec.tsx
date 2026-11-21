@@ -71,7 +71,7 @@ describe("ClusterProfilesWidget", () => {
     mount(pluginInfos, clusterProfiles, new ElasticAgentProfiles([]));
 
     expect(helper.byTestId("new-elastic-agent-profile-button")).toBeInDOM();
-    expect(helper.byTestId("new-elastic-agent-profile-button")).toHaveText("Elastic Agent Profile");
+    expect(helper.byTestId("new-elastic-agent-profile-button")).toHaveText("Create Elastic Agent Profile");
 
     helper.unmount();
   });

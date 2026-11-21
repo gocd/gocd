@@ -79,7 +79,7 @@ describe("PipelineGroupsWidget", () => {
       .toContain("There are no pipelines defined in this pipeline group.");
 
     expect(helper.textByTestId(`pipeline-group-name-foo`)).toEqual("Pipeline Group:foo");
-    expect(helper.textByTestId(`create-pipeline-in-group-foo`)).toEqual("Add new pipeline");
+    expect(helper.textByTestId(`create-pipeline-in-group-foo`)).toEqual("Create Pipeline");
     expect(helper.byTestId(`edit-pipeline-group-foo`)).toBeInDOM();
     expect(helper.byTestId(`delete-pipeline-group-foo`)).toBeInDOM();
   });

@@ -183,7 +183,7 @@ class PipelineGroupWidget extends MithrilViewComponent<PipelineGroupAttrs> {
         <Primary icon={ButtonIcon.ADD}
                  dataTestId={`create-pipeline-in-group-${s.slugify(vnode.attrs.group.name())}`}
                  onclick={vnode.attrs.createPipelineInGroup.bind(vnode.attrs, vnode.attrs.group.name())}>
-          Add new pipeline
+          Create Pipeline
         </Primary>
         <span class={styles.iconGroupWrapper}>
           <IconGroup>

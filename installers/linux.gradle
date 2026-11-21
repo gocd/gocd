@@ -189,7 +189,7 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
         into "${buildRoot}${installLayout.installDir}/wrapper-config"
 
         from("${extractDeltaPack.destinationDir}/src/conf/wrapper.conf.in") {
-          filter(installerType.wrapperConfTemplateFilter(installLayout, installerType.additionalLinuxEnvVars, installerType.linuxJvmArgs))
+          filter(installerType.wrapperConfTemplateFilter(installLayout, installerType.additionalLinuxEnvVars, installerType.linuxJvmArgs, true))
           filter(ConcatFilter, append: file("include/wrapper-license-linux-${installerType.baseName}.conf"))
           filter(ConcatFilter, append: file("include/additional-properties.conf"))
 

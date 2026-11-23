@@ -1256,7 +1256,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@csstools/css-syntax-patches-for-csstree@npm:^1.1.15":
+"@csstools/css-syntax-patches-for-csstree@npm:^1.1.15, @csstools/css-syntax-patches-for-csstree@npm:^1.1.16":
   version: 1.1.17
   resolution: "@csstools/css-syntax-patches-for-csstree@npm:1.1.17"
   peerDependencies:
@@ -2912,7 +2912,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"colord@npm:^2.10.0":
+"colord@npm:^2.13.0":
   version: 2.14.0
   resolution: "colord@npm:2.14.0"
   checksum: 10c0/e16b472899b8958881375a0cf4db259bae35e36f1de1ba00af908e5896fdc3d3f5d7d801baf54942a404c1de5275f9e7433daf4e86ca5bd703f9894570ef319e
@@ -4019,7 +4019,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"filesize@npm:^11.0.34":
+"filesize@npm:^11.0.35":
   version: 11.0.35
   resolution: "filesize@npm:11.0.35"
   checksum: 10c0/6fc60086c95eccfcf4d1ab1b70b9426e6fab2a5088be3ce5fb5320e72dba76b7a24d6edd4b2ffe7e461dee8db574ba10682da4d289d913b25f657e5b3c61ce32
@@ -4426,7 +4426,7 @@ __metadata:
     eslint-plugin-react: "npm:^7.37.5"
     eslint-webpack-plugin: "npm:^6.0.0"
     file-loader: "npm:^6.2.0"
-    filesize: "npm:^11.0.34"
+    filesize: "npm:^11.0.35"
     fork-ts-checker-webpack-plugin: "npm:^9.1.1"
     foundation-sites: "npm:^6.9.0"
     fs-extra: "npm:^11.4.1"
@@ -4458,13 +4458,13 @@ __metadata:
     opensans: "file:node-vendor/opensans#node-vendor/opensans::hash=930bae&locator=gocd-server-ui%40workspace%3A."
     prismjs: "npm:^1.30.0"
     sass-embedded: "npm:^1.108.2"
-    sass-loader: "npm:^17.1.0"
+    sass-loader: "npm:^17.1.1"
     shell-quote: "npm:^1.12.0"
     shellwords-ts: "npm:^3.0.1"
     simulate-event: "npm:^1.4.0"
     sourcemapped-stacktrace: "npm:^1.1.11"
     style-loader: "npm:^4.0.0"
-    stylelint: "npm:^18.0.0"
+    stylelint: "npm:^18.1.0"
     stylelint-config-standard-scss: "npm:^18.0.0"
     stylelint-webpack-plugin: "npm:^5.1.0"
     thread-loader: "npm:^4.0.4"
@@ -4477,7 +4477,7 @@ __metadata:
     url-loader: "npm:^4.1.1"
     url-parse: "npm:^1.5.10"
     uuid: "npm:^14.0.3"
-    webpack: "npm:^5.112.2"
+    webpack: "npm:^5.113.0"
     webpack-assets-manifest: "npm:^6.5.6"
     webpack-cli: "npm:^7.3.1"
   languageName: unknown
@@ -6443,7 +6443,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-selector-parser@npm:^7.0.0, postcss-selector-parser@npm:^7.1.6, postcss-selector-parser@npm:^7.1.7":
+"postcss-selector-parser@npm:^7.0.0, postcss-selector-parser@npm:^7.1.6, postcss-selector-parser@npm:^7.2.1":
   version: 7.2.1
   resolution: "postcss-selector-parser@npm:7.2.1"
   dependencies:
@@ -6459,7 +6459,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.4.40, postcss@npm:^8.5.31":
+"postcss@npm:^8.4.40, postcss@npm:^8.5.33":
   version: 8.5.33
   resolution: "postcss@npm:8.5.33"
   dependencies:
@@ -7174,9 +7174,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass-loader@npm:^17.1.0":
-  version: 17.1.0
-  resolution: "sass-loader@npm:17.1.0"
+"sass-loader@npm:^17.1.1":
+  version: 17.1.1
+  resolution: "sass-loader@npm:17.1.1"
   peerDependencies:
     "@rspack/core": 0.x || ^1.0.0 || ^2.0.0-0
     sass: ^1.3.0
@@ -7191,7 +7191,7 @@ __metadata:
       optional: true
     webpack:
       optional: true
-  checksum: 10c0/6eff347a98c3ff654430562d661f689a48079b16298dc4e59c49cf8730c7abea09cbdbe2493a3b68059d44bd89c0db2e3e5e93facc9ea83e332b0f8ba1b357e9
+  checksum: 10c0/e78d215b8eb16e3e8a94a5c71f0513fdc1af5a547d389578d5ee9bae3fa8bed980b4bfe6ab0b1c74b0231c7ad0c8d4ae682412c376b7e2c51ab4c86fd3ff9639
   languageName: node
   linkType: hard
 
@@ -7885,32 +7885,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint@npm:^18.0.0":
-  version: 18.0.0
-  resolution: "stylelint@npm:18.0.0"
+"stylelint@npm:^18.1.0":
+  version: 18.1.0
+  resolution: "stylelint@npm:18.1.0"
   dependencies:
     "@csstools/css-calc": "npm:^3.4.3"
     "@csstools/css-parser-algorithms": "npm:^4.0.2"
-    "@csstools/css-syntax-patches-for-csstree": "npm:^1.1.15"
+    "@csstools/css-syntax-patches-for-csstree": "npm:^1.1.16"
     "@csstools/css-tokenizer": "npm:^4.0.2"
     "@csstools/media-query-list-parser": "npm:^5.0.2"
     "@csstools/selector-resolve-nested": "npm:^4.0.2"
     "@csstools/selector-specificity": "npm:^6.0.1"
-    colord: "npm:^2.10.0"
+    colord: "npm:^2.13.0"
     cosmiconfig: "npm:^10.0.1"
     css-tree: "npm:^3.2.1"
     ignore: "npm:^7.0.14"
     import-meta-resolve: "npm:^4.2.0"
     picomatch: "npm:^4.0.7"
-    postcss: "npm:^8.5.31"
+    postcss: "npm:^8.5.33"
     postcss-safe-parser: "npm:^7.1.0"
-    postcss-selector-parser: "npm:^7.1.7"
+    postcss-selector-parser: "npm:^7.2.1"
     postcss-value-parser: "npm:^4.2.0"
     tinyglobby: "npm:^0.2.17"
     write-file-atomic: "npm:^8.0.0"
   bin:
     stylelint: bin/stylelint.mjs
-  checksum: 10c0/e5465ea0db70c500c367dd55a5564a37639154c26f48f8ebb5b375a9f26c3cf27300fed4c919f876edd2e0dea73139eaf062c26a0786e63c8b23273a3f12ac8f
+  checksum: 10c0/ca932128f391952131820580ec42b26c49c011cc56f6243e4447677d910bea9233225b0a48aca1fb3183684ee21d24accbaccd3405d6580b3935d9b1ae670421
   languageName: node
   linkType: hard
 
@@ -8556,7 +8556,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:^5.112.2":
+"webpack@npm:^5.113.0":
   version: 5.113.0
   resolution: "webpack@npm:5.113.0"
   dependencies:

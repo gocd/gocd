@@ -31,7 +31,7 @@ import java.time.Duration;
 @EnabledOnOs({OS.LINUX, OS.MAC})
 class DatabaseMigratorPostgreSQLTest extends AbstractMigratorIntegrationTest {
     @Container
-    private final PostgreSQLContainer postgresqlContainer = new PostgreSQLContainer("postgres:18")
+    private final PostgreSQLContainer postgresqlContainer = new PostgreSQLContainer("postgres:19")
         .waitingFor(new WaitAllStrategy()
             .withStrategy(Wait.forLogMessage(".*database system is ready to accept connections.*\\s", 2))
             .withStrategy(Wait.forListeningPort())

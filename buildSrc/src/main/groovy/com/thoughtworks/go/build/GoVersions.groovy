@@ -17,21 +17,26 @@
 package com.thoughtworks.go.build
 
 import groovy.transform.Immutable
-import org.gradle.api.invocation.Gradle
+import groovy.transform.ImmutableOptions
+import org.gradle.api.provider.ProviderFactory
+import org.gradle.util.GradleVersion
 
 import java.time.Duration
 
 import static org.gradle.api.JavaVersion.*
 
 @Immutable
+@ImmutableOptions(knownImmutableClasses = [ProviderFactory])
 class GoVersions implements Serializable {
+  transient ProviderFactory providers
+
   String goVersion
   String previousVersion
   String nextVersion
 
-  String gitRevision = determineGitRevision()
-  String gitShortRevision = determineGitShortRevision()
-  String distVersion = determineReleaseRevision()
+  String gitRevision = git('rev-list', 'HEAD', '--max-count=1')
+  String gitShortRevision = git('rev-list', 'HEAD', '--max-count=1', '--abbrev-commit')
+  String distVersion = git('rev-list', 'HEAD', '--count')
 
   String getFullVersion() { distVersion ? "${goVersion}-${distVersion}" : goVersion }
 
@@ -47,56 +52,52 @@ class GoVersions implements Serializable {
       .collect { v -> v.majorVersion }
   }
 
-  private static String determineGitRevision() {
-    outputFor("git rev-list HEAD --max-count=1")
+  private String git(String... args) {
+    providers.exec { commandLine(['git', *args]); ignoreExitValue = true }.standardOutput.asText.get().trim()
   }
 
-  private static String determineGitShortRevision() {
-    outputFor("git rev-list HEAD --max-count=1 --abbrev-commit")
+  private String toolVersion(String command) {
+    try {
+      def exec = providers.exec { commandLine(command.split(' ')); ignoreExitValue = true }
+      exec.result.get().exitValue == 0 ? exec.standardOutput.asText.get().trim() : "could not determine version!"
+    } catch (Exception e) {
+      "could not determine version! (${e.message})"
+    }
   }
 
-  private static String determineReleaseRevision() {
-    outputFor("git rev-list HEAD --count")
-  }
-
-  private static outputFor(String command) {
-    def process = command.execute(null, null)
-    process.waitFor()
-    return process.text.stripIndent().trim()
-  }
-
-  static void printGradleDebuggingOutputFor(Gradle gradle, GoVersions goVersions) {
+  GoVersions withGradleDebuggingOutput() {
     if (isCi()) {
       def separator = "=".multiply(72)
 
       println separator
-      println "Gradle version:  ${gradle.gradleVersion}"
+      println "Gradle version:  ${GradleVersion.current().version}"
       println "JVM:             ${System.getProperty('java.version')} (${System.getProperty('java.vm.vendor')} ${System.getProperty('java.vm.version')})"
       println "OS:              ${System.getProperty('os.name')} ${System.getProperty('os.version')} ${System.getProperty('os.arch')}"
       println("")
 
       println("Tool Versions")
       println(separator)
-      println("node: ${getToolVersion("node --version")} (corepack: ${getToolVersion("corepack --version")})")
-      println(" git: ${getToolVersion("git --version")}")
-      println("  hg: ${getToolVersion("hg --quiet --version")}")
-      println(" svn: ${getToolVersion("svn --quiet --version")}")
-      println("  p4: ${getToolVersion("p4 -V").readLines().grep(~/Rev.*/).join("")}")
-      println(" p4d: ${getToolVersion("p4d -V").readLines().grep(~/Rev.*/).join("")}")
-      println(" ant: ${getToolVersion("ant -version")}")
+      println("node: ${toolVersion("node --version")} (corepack: ${toolVersion("corepack --version")})")
+      println(" git: ${toolVersion("git --version")}")
+      println("  hg: ${toolVersion("hg --quiet --version")}")
+      println(" svn: ${toolVersion("svn --quiet --version")}")
+      println("  p4: ${toolVersion("p4 -V").readLines().grep(~/Rev.*/).join("")}")
+      println(" p4d: ${toolVersion("p4d -V").readLines().grep(~/Rev.*/).join("")}")
+      println(" ant: ${toolVersion("ant -version")}")
       println("")
 
       println("GoCD Versions")
       println(separator)
-      println("        goVersion: ${goVersions.goVersion}")
-      println("      distVersion: ${goVersions.distVersion}        (will be inaccurate on shallow clones!)")
-      println("      fullVersion: ${goVersions.fullVersion}")
-      println(" gitShortRevision: ${goVersions.gitShortRevision}")
-      println("targetJavaVersion: ${goVersions.targetJavaVersion}")
-      println(" buildJavaVersion: ${goVersions.buildJavaVersion}")
-      println("   javaPreference: ${goVersions.preferredJavaVersions()}")
+      println("        goVersion: ${goVersion}")
+      println("      distVersion: ${distVersion}        (will be inaccurate on shallow clones!)")
+      println("      fullVersion: ${fullVersion}")
+      println(" gitShortRevision: ${gitShortRevision}")
+      println("targetJavaVersion: ${targetJavaVersion}")
+      println(" buildJavaVersion: ${buildJavaVersion}")
+      println("   javaPreference: ${preferredJavaVersions()}")
       println("")
     }
+    return this
   }
 
   static boolean isCi() {

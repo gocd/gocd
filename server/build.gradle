@@ -18,6 +18,8 @@ import com.github.jk1.license.task.ReportTask
 import com.thoughtworks.go.build.GoVersions
 import com.thoughtworks.go.build.LicenseReport
 import com.thoughtworks.go.build.TextUtils
+import com.thoughtworks.go.build.AbstractVerifyJarTask
+import com.thoughtworks.go.build.VerifyClasspathJarsTask
 import com.thoughtworks.go.build.VerifyJarTask
 import dev.yumi.gradle.licenser.task.ApplyLicenseTask
 import dev.yumi.gradle.licenser.task.CheckLicenseTask
@@ -505,40 +507,40 @@ def configureWar = tasks.register('configureWar') {
   }
 }
 
+// The jars to be packaged into the war's WEB-INF/lib
+def warLibs = files({
+  def appServerJarTask = project(':app-server').tasks.named('jar') as TaskProvider<Jar>
+
+  // Using a Set<String> is more reliable than Set<File> because File.equals() may be affected by other internal fields
+  // aside from `path` that aren't important to us; thus, Set<File> may allow duplicate paths and Set<String> will not.
+  Set<String> classpath = (
+    configurations.runtimeClasspath
+      + configurations.packagingOnly
+      + configurations.allApis
+      + configurations.spark
+      // Rely on logging libs from launcher parent classloader; JettyServer pins org.slf4j/org.apache.commons.logging as system classes
+      - configurations.runtimeClasspath.findAll { jar -> ['logback', 'slf4j-api', 'jcl-over-slf4j', 'jul-to-slf4j'].any { jar.name.startsWith(it) } }
+  )
+    .collect { f -> f.toString() }
+    .toSet()
+
+  // exclude app-server because it causes class cast exceptions (loaded by different classloaders)
+  classpath.removeAll([
+    appServerJarTask.get().archiveFile.get().toString(),
+    jar.archiveFile.get().toString()
+  ])
+
+  classpath
+}).builtBy(configurations.runtimeClasspath, configurations.packagingOnly, configurations.allApis, configurations.spark)
+
 def war = tasks.register('war', Jar) {
   dependsOn configureWar, ':server:jar'
-  dependsOn configurations.runtimeClasspath, configurations.packagingOnly, configurations.allApis, configurations.spark
 
   finalizedBy 'verifyWar'
   archiveBaseName = 'cruise'
   archiveExtension = 'war'
 
-  def appServerJarTask = project(':app-server').tasks.named('jar') as TaskProvider<Jar>
-
-  def classpathResolver = {
-    // Using a Set<String> is more reliable than Set<File> because File.equals() may be affected by other internal fields
-    // aside from `path` that aren't important to us; thus, Set<File> may allow duplicate paths and Set<String> will not.
-    Set<String> classpath = (
-      configurations.runtimeClasspath
-        + configurations.packagingOnly
-        + configurations.allApis
-        + configurations.spark
-        // Rely on logging libs from launcher parent classloader; JettyServer pins org.slf4j/org.apache.commons.logging as system classes
-        - configurations.runtimeClasspath.findAll { jar -> ['logback', 'slf4j-api', 'jcl-over-slf4j', 'jul-to-slf4j'].any { jar.name.startsWith(it) } }
-    )
-      .collect { f -> f.toString() }
-      .toSet()
-
-    // exclude app-server because it causes class cast exceptions (loaded by different classloaders)
-    classpath.removeAll([
-      appServerJarTask.get().archiveFile.get().toString(),
-      jar.archiveFile.get().toString()
-    ])
-
-    classpath
-  }
-
-  from(classpathResolver) {
+  from(warLibs) {
     into 'WEB-INF/lib'
   }
 
@@ -568,9 +570,8 @@ def war = tasks.register('war', Jar) {
   }
 }
 
-tasks.register('verifyWar', VerifyJarTask) {
-  jarTask = war
-  expectedJars = [
+def expectedWarJars = { ->
+  [
     "WEB-INF/lib": (
       ((project(':api').subprojects + project(':spark').subprojects).collect { eachProject -> eachProject.jar.archiveFile.get().asFile.name })
         + [
@@ -713,6 +714,18 @@ tasks.register('verifyWar', VerifyJarTask) {
         "zt-exec-${rootProject.versions.ztExec}.jar",
       ])
   ] as Map<String, List<String>>
+}
+
+// Verifies the war's libraries prior to packaging, since the war depends on the license report, which relies on these
+// expectations being correct. This allows extra/missing jars to be reported before license report errors.
+def verifyWarLibs = tasks.register('verifyWarLibs', VerifyClasspathJarsTask) {
+  classpath.from(warLibs)
+  expectedJars = expectedWarJars()
+}
+
+tasks.register('verifyWar', VerifyJarTask) {
+  jarTask = war
+  expectedJars = expectedWarJars()
 
   doLast {
     def denylistedContents = [
@@ -745,8 +758,10 @@ tasks.register('licenseReportAggregate') {
   dependsOn compileAssetsWebpackProd
   dependsOn generateRubygemsLicenseReport
 
-  // try our best to run verifications first since logic here relies on the expectations here
-  def verifyJarTasks = rootProject.subprojects.collectMany { eachProject -> eachProject.tasks.withType(VerifyJarTask) }
+  // try our best to run verifications first since logic here relies on the expectations here. verifyWar cannot be
+  // ordered first since the war bundles compiled assets, which depend on this task; so verify its libraries directly.
+  dependsOn verifyWarLibs
+  def verifyJarTasks = rootProject.subprojects.collectMany { eachProject -> eachProject.tasks.withType(AbstractVerifyJarTask) }
   shouldRunAfter verifyJarTasks
 
   def yarnLicenseReportDir = (compileAssetsWebpackProd as Task).outputs.files.find { f -> f.name == 'yarn-license-prod' } as File
@@ -872,7 +887,8 @@ tasks.register('licenseReportAggregate') {
   }
 
   def getLicenseDataFor = { Set<String> allExpectedJarRegexes, Set<Map<String, Object>> allDependenciesInReport ->
-    allExpectedJarRegexes.inject(new LinkedHashMap<String, Map<String, Object>>(), { result, packagedJarRegex ->
+    def missing = [] as List<String>
+    def result = allExpectedJarRegexes.inject(new LinkedHashMap<String, Map<String, Object>>(), { result, packagedJarRegex ->
       Map<String, Object> module = allDependenciesInReport.find { Map<String, Object> eachDependencyInReport ->
         def (_, artifactId) = (eachDependencyInReport.moduleName as String).split(':')
         def version = eachDependencyInReport.moduleVersion
@@ -880,12 +896,23 @@ tasks.register('licenseReportAggregate') {
       }
 
       if (module == null) {
-        throw new GradleException("Expected to find packaged jar ${packagedJarRegex} but was not found in the license report")
+        // This task is a (transitive) dependency of the war, so runs before verifyWar can report extra/missing jars.
+        // Most commonly the version of a dependency has changed, so hint at what the license report actually contains.
+        def candidates = allDependenciesInReport.findAll { Map<String, Object> eachDependencyInReport ->
+          def (_, artifactId) = (eachDependencyInReport.moduleName as String).split(':')
+          packagedJarRegex.startsWith("${artifactId}-") && packagedJarRegex.substring(artifactId.length() + 1) =~ /^\d/
+        }.collect { "${it.moduleName}:${it.moduleVersion}" }.unique().sort()
+        missing.add("  - ${packagedJarRegex}" + (candidates ? " (license report has ${candidates.join(', ')} - did the version change? Update the verifyJar/verifyWar expectations)" : ''))
+      } else {
+        result.put(module.moduleName as String, module)
       }
-
-      result.put(module.moduleName as String, module)
       result
     })
+
+    if (!missing.empty) {
+      throw new GradleException((["Expected to find the following packaged jars in the license report, but they were not found:"] + missing).join(System.lineSeparator()))
+    }
+    result
   }
 
   def goCDJarsWithoutLicenses = ['agent-launcher.jar',
@@ -904,7 +931,7 @@ tasks.register('licenseReportAggregate') {
 
     // list of all jars that we expect to package
     Set<String> allExpectedJarRegexes = verifyJarTasks
-      .collectMany { VerifyJarTask eachTask -> eachTask.expectedJars.values().flatten() }
+      .collectMany { AbstractVerifyJarTask eachTask -> eachTask.expectedJars.values().flatten() }
       .collect { name -> name.toString() }.sort().unique()
 
     // remove unwanted stuff, mostly nested zip files and jars with GoCD package version

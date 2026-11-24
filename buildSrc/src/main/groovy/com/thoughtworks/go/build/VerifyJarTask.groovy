@@ -13,25 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.thoughtworks.go.build
 
-import org.gradle.api.DefaultTask
 import org.gradle.api.file.ArchiveOperations
-import org.gradle.api.file.FileTree
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
 
 import javax.inject.Inject
 
-abstract class VerifyJarTask extends DefaultTask {
+/**
+ * Verifies the jars packaged within directories of an archive.
+ */
+abstract class VerifyJarTask extends AbstractVerifyJarTask {
 
   @Internal TaskProvider<? extends Zip> jarTask
-  @Input Map<String, List<String>> expectedJars
 
   @Internal abstract RegularFileProperty getJar()
   @Inject abstract ArchiveOperations getArchiveOps()
@@ -42,36 +39,16 @@ abstract class VerifyJarTask extends DefaultTask {
     this.jar.set(jarTask.flatMap { it.archiveFile })
   }
 
-  @TaskAction
-  void perform() {
-    def expectedMessages = []
+  @Override
+  protected Collection<String> actualJarNames(String directoryInJar) {
+    archiveOps.zipTree(jar).matching {
+      include "${directoryInJar}/*.jar"
+      include "${directoryInJar}/*.zip"
+    }.files.collect { it.name }
+  }
 
-    expectedJars.each { directoryInJar, expectedJarsInDir ->
-      FileTree tree = archiveOps.zipTree(jar).matching {
-        include "${directoryInJar}/*.jar"
-        include "${directoryInJar}/*.zip"
-      }
-      def allJars = tree.files.collect { it.name }.sort()
-
-      def extra = allJars.findAll {actual -> !expectedJarsInDir.any { expected -> actual =~ expected } }
-      if (!extra.empty) {
-        expectedMessages += ["Got some extra jars in ${jar.get()}!${directoryInJar} that were not expected"]
-        extra.each { jar ->
-          expectedMessages += ["  - ${jar}"]
-        }
-      }
-
-      def missing = expectedJarsInDir.findAll {expected -> !allJars.any { actual -> actual =~ expected } }
-      if (!missing.empty) {
-        expectedMessages += ["Some jars that were expected in ${jar.get()}!${directoryInJar} were not present"]
-        missing.each { jar ->
-          expectedMessages += ["  - ${jar}"]
-        }
-      }
-    }
-
-    if (!expectedMessages.empty) {
-      throw new IllegalStateException(expectedMessages.join(System.lineSeparator()))
-    }
+  @Override
+  protected String describe(String directoryInJar) {
+    "${jar.get()}!${directoryInJar}"
   }
 }

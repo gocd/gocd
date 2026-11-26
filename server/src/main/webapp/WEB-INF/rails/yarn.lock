@@ -1825,13 +1825,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/hammerjs@npm:^2.0.45":
-  version: 2.0.46
-  resolution: "@types/hammerjs@npm:2.0.46"
-  checksum: 10c0/f3c1cb20dc2f0523f7b8c76065078544d50d8ae9b0edc1f62fed657210ed814266ff2dfa835d2c157a075991001eec3b64c88bf92e3e6e895c0db78d05711d06
-  languageName: node
-  linkType: hard
-
 "@types/html-minifier-terser@npm:^6.0.0":
   version: 6.1.0
   resolution: "@types/html-minifier-terser@npm:6.1.0"
@@ -2772,15 +2765,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chartjs-plugin-zoom@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "chartjs-plugin-zoom@npm:2.2.0"
-  dependencies:
-    "@types/hammerjs": "npm:^2.0.45"
-    hammerjs: "npm:^2.0.8"
+"chartjs-plugin-zoom@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "chartjs-plugin-zoom@npm:3.0.1"
   peerDependencies:
     chart.js: ">=3.2.0"
-  checksum: 10c0/15817e912dcc0c62e66121d10c7f1af04cd788c8c831b9ed8f822e2835501b8816143e10b5b4f286a9afddc91492c3d7104b49e7226a3fb682b94412f9ee4087
+  checksum: 10c0/a7765e8abee634e2adfe772f2bf19e9f6849c110235fc8e03432ed2859e072a5002d3c1983710c1e639dfa1e4d36b10740f1d0dd31f7d9d1b0baccbbaf7f2b54
   languageName: node
   linkType: hard
 
@@ -4417,7 +4407,7 @@ __metadata:
     babel-loader: "npm:^10.1.1"
     bourbon: "npm:~7.1.0"
     chart.js: "npm:^4.6.1"
-    chartjs-plugin-zoom: "npm:^2.2.0"
+    chartjs-plugin-zoom: "npm:^3.0.1"
     classnames: "npm:^2.5.1"
     core-js: "npm:^3.51.0"
     cross-env: "npm:^10.1.0"
@@ -4501,13 +4491,6 @@ __metadata:
   version: 3.3.0
   resolution: "hack-font@npm:3.3.0"
   checksum: 10c0/f0c2ab697678323342f222f911c24962a763da6c7b98d2598d61a890c23823fc00e4c3cd8deac8137ac235e7686f9d230fd5102c3f175973033b4c858c24e38f
-  languageName: node
-  linkType: hard
-
-"hammerjs@npm:^2.0.8":
-  version: 2.0.8
-  resolution: "hammerjs@npm:2.0.8"
-  checksum: 10c0/5c95e5774b5ea49492cb3fa8f1949aea67048a0b84af33acb555e7139abfcf3c83aca2b83e0c5008755bc230166df7b5e469d1e3eb6746c48f215f3672609fed
   languageName: node
   linkType: hard
 

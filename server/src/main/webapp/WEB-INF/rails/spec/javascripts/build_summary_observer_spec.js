@@ -18,8 +18,6 @@ describe("BuildSummaryObserverSpec", function BuildSummaryObserverSpec() {
   beforeEach(function () {
     setFixtures(`
       <div id="container" class="build_detail">
-        <span class="page_panel"><b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b></span>
-      
         <div id="build_status" class="build-status"></div>
         <div class="build_detail_summary">
             <ul class="summary">
@@ -30,7 +28,6 @@ describe("BuildSummaryObserverSpec", function BuildSummaryObserverSpec() {
                 <span id="build_status"></span>
             </ul>
         </div>
-        <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
       </div>
       
       <span class="buildoutput_pre"></span>

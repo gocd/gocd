@@ -15,31 +15,15 @@
  */
 
 class TransMessage {
-  static TYPE_NOTICE = "notice";
-  static TYPE_ERROR = "error";
-
   constructor(trans_message, targetElement, options) {
+    this.targetElement = $(targetElement);
     this.options = {
-      type: TransMessage.TYPE_NOTICE,
-      autoHide: true,
-      height: $(targetElement).height() * 0.9,
-      hideDelay: 2,
+      height: this.targetElement.height() * 0.9,
       offsetTop: 0,
-      offsetLeft: 0,
+      offsetLeft: this.targetElement.width() * 0.1,
       ...(options || {})
     };
     this.trans_message = $(Util.idToSelector(trans_message));
-    this.targetElement = $(targetElement);
-    this.changeType();
-    this.show();
-  }
-
-  show() {
-    if (this.trans_message.is(':visible')) {
-      return;
-    }
-
-    this.options.offsetLeft = this.targetElement.width() * 0.1;
     this.trans_message.css({
       'position': 'absolute',
       'top': `${this.targetElement.position().top + this.options.offsetTop}px`,
@@ -48,26 +32,5 @@ class TransMessage {
       'width': `${this.targetElement.width() * 0.8}px`
     });
     this.trans_message.show();
-
-    if (this.options.autoHide) {
-      setTimeout(this.hide.bind(this), this.options.hideDelay * 1000);
-    }
-  }
-
-  hide() {
-    this.trans_message.hide();
-  }
-
-  changeType() {
-    const _me = this;
-    this.trans_message.find(".r1, .r2, .r3, .r4, .transparent_message").each(function (i, elem) {
-      if (_me.options.type === TransMessage.TYPE_NOTICE) {
-        $(elem).removeClass(`transparent_${TransMessage.TYPE_ERROR}`);
-        $(elem).addClass(`transparent_${TransMessage.TYPE_NOTICE}`);
-      } else {
-        $(elem).removeClass(`transparent_${TransMessage.TYPE_NOTICE}`);
-        $(elem).addClass(`transparent_${TransMessage.TYPE_ERROR}`);
-      }
-    });
   }
 }

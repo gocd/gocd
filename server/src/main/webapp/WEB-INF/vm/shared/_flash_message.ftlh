@@ -14,17 +14,5 @@
  limitations under the License.
  -->
 <div id="trans_message" style="position:absolute;display:none">
-    <b class="rtop" style="display:block;background-color: transparent;">
-       <b class="r1"></b>
-       <b class="r2"></b>
-       <b class="r3"></b>
-       <b class="r4"></b>
-    </b>
     <div class="transparent_message" id="trans_content"></div>
-    <b class="rbottom" style="display:block;background-color: transparent;">
-        <b class="r4"></b>
-        <b class="r3"></b>
-        <b class="r2"></b>
-        <b class="r1"></b>
-    </b>    
 </div>

@@ -21,8 +21,8 @@
         <div class="yui-b"></div>
     </div>
     <script type="text/javascript">
-        $('#trans_content').html("Sorry, an unexpected error occurred<#if errorMessage??> [${errorMessage?js_string?no_esc}]</#if>. :( Please check the server logs for more information.");
-        var transMessage = new TransMessage('trans_message', document.body, {type: TransMessage.TYPE_ERROR, offsetTop: 200, autoHide: false});
+        $('#trans_content').html("Sorry, an unexpected error occurred<#if errorMessage??> [${errorMessage?js_string}]</#if>. :( Please check the server logs for more information.");
+        const transMessage = new TransMessage('trans_message', document.body, {offsetTop: 200});
     </script>
 
 </body>

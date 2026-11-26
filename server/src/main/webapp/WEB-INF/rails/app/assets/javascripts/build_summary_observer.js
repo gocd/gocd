@@ -34,11 +34,7 @@
     displayAnyErrorMessages: function displayErrorMessagesOnBuildDetails(json) {
       if (is_result_unknown(json)) {
         $('#trans_content').html(`Failed to find log in <br/>${json.building_info.name}`);
-        new TransMessage('trans_message', $('#build_detail_summary_container')[0], {
-          type:     TransMessage.TYPE_ERROR,
-          autoHide: false,
-          height:   50
-        });
+        new TransMessage('trans_message', $('#build_detail_summary_container')[0], {height: 50});
       }
     },
     updateBuildResult: function updateBuildResult(json) {

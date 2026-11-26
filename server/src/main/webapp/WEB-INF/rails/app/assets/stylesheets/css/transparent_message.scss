@@ -18,27 +18,10 @@
 
 .transparent_message {
   text-align: center;
-  font-size: 12px;
-}
-
-.r4,
-.r3,
-.r2,
-.r1 {
-  display: none;
-}
-
-.transparent_error {
+  font-size: large;
   background: #fff;
   padding: 20px;
   color: #991a00;
-  font-size: large;
-}
-
-.transparent_notice {
-  background: #fff;
-  padding: 20px;
-  color: #000;
 }
 
 #trans_content {

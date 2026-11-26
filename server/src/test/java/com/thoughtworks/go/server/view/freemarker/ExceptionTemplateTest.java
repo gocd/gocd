@@ -46,7 +46,7 @@ public class ExceptionTemplateTest extends AbstractFreemarkerTemplateTest {
         data.put("errorMessage", "<Error> you shouldn't \"expect\"");
 
         String output = view.render(data);
-        assertThat(output).contains("$('#trans_content').html(\"Sorry, an unexpected error occurred [<Error> you shouldn\\'t \\\"expect\\\"]. :( Please check the server logs for more information.\");");
+        assertThat(output).contains("$('#trans_content').html(\"Sorry, an unexpected error occurred [&lt;Error&gt; you shouldn\\&#39;t \\&quot;expect\\&quot;]. :( Please check the server logs for more information.\");");
     }
 
     @Test

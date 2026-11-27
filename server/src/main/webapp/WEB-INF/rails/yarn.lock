@@ -1556,10 +1556,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kurkle/color@npm:^0.3.0":
-  version: 0.3.4
-  resolution: "@kurkle/color@npm:0.3.4"
-  checksum: 10c0/0e9fd55c614b005c5f0c4c755bca19ec0293bc7513b4ea3ec1725234f9c2fa81afbc78156baf555c8b9cb0d305619253c3f5bca016067daeebb3d00ebb4ea683
+"@kurkle/color@npm:^0.6.6":
+  version: 0.6.6
+  resolution: "@kurkle/color@npm:0.6.6"
+  checksum: 10c0/ce7c1393621b5c8d51e51478ddb2390259af13e2673b5e10f145a468a5efc686e8c0072b6941fe58299817fac8f62576a7bdd4ab6ea218c9d85817e53b71bec8
   languageName: node
   linkType: hard
 
@@ -2763,12 +2763,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chart.js@npm:^4.6.1":
-  version: 4.6.1
-  resolution: "chart.js@npm:4.6.1"
+"chart.js@npm:^4.6.2":
+  version: 4.6.2
+  resolution: "chart.js@npm:4.6.2"
   dependencies:
-    "@kurkle/color": "npm:^0.3.0"
-  checksum: 10c0/442e3f3958ddbb217b19ec9f57f997f59695d5543af246a8023f3d373bdca494d67ed4dd080600fef71b0894441cd36d7eaebb8e164b2686a97ceef43d91faa4
+    "@kurkle/color": "npm:^0.6.6"
+  checksum: 10c0/ec73e734cfaa043c5f4511c77ce3056f624e307be922c0e8919e0be7c8cc636c76049c746f166ecb4dc1b0331b448e0e46e52e76f6bbe6fd55c8942725d5db91
   languageName: node
   linkType: hard
 
@@ -4416,7 +4416,7 @@ __metadata:
     awesomplete: "npm:^1.1.7"
     babel-loader: "npm:^10.1.1"
     bourbon: "npm:~7.1.0"
-    chart.js: "npm:^4.6.1"
+    chart.js: "npm:^4.6.2"
     chartjs-plugin-zoom: "npm:^2.2.0"
     classnames: "npm:^2.5.1"
     core-js: "npm:^3.51.0"

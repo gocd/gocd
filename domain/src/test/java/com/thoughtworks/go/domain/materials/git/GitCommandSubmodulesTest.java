@@ -55,7 +55,7 @@ public class GitCommandSubmodulesTest extends GitCommandIntegrationTestBase {
         gitWithSubmodule.clone(inMemoryConsumer(), submoduleRepos.mainRepo().urlForCommandLine());
         InMemoryStreamConsumer outConsumer = new InMemoryStreamConsumer();
         gitWithSubmodule.resetWorkingDir(outConsumer, new StringRevision("HEAD"), false);
-        Matcher matcher = compile(".*^\\s[a-f0-9A-F]{40} sub1 \\(heads/master\\)$.*", Pattern.MULTILINE | Pattern.DOTALL).matcher(outConsumer.getAllOutput());
+        Matcher matcher = compile(".*^\\s[a-f0-9A-F]{40} sub1 \\(heads/main\\)$.*", Pattern.MULTILINE | Pattern.DOTALL).matcher(outConsumer.getAllOutput());
         assertTrue(matcher.matches());
     }
 
@@ -225,7 +225,7 @@ public class GitCommandSubmodulesTest extends GitCommandIntegrationTestBase {
         clonedCopy.clone(outputStreamConsumer, TestRepo.toFileURI(repoContainingSubmodule.mainRepo().urlForCommandLine()), 1);
         clonedCopy.fetchAndResetToHead(outputStreamConsumer, true);
         ConsoleResult consoleResult = git_C(new File(cloneDirectory, submoduleDirectoryName),
-            "rev-list", "--count", "master");
+            "rev-list", "--count", "main");
         assertEquals("1", consoleResult.outputAsString());
     }
 
@@ -243,7 +243,7 @@ public class GitCommandSubmodulesTest extends GitCommandIntegrationTestBase {
         clonedCopy.clone(outputStreamConsumer, TestRepo.toFileURI(repoContainingSubmodule.mainRepo().urlForCommandLine()), 1);
         clonedCopy.fetchAndResetToHead(outputStreamConsumer, true);
         ConsoleResult consoleResult = git_C(new File(cloneDirectory, submoduleDirectoryName),
-            "rev-list", "--count", "master");
+            "rev-list", "--count", "main");
         assertEquals("2", consoleResult.outputAsString());
     }
 

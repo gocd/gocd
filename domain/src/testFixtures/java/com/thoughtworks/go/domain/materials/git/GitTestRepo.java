@@ -112,6 +112,9 @@ public class GitTestRepo extends TestRepo {
             throw new RuntimeException(String.format("[ERROR] Failed to clone. URL [%s] exit value [%d] output [%s]", from.getAbsolutePath(), returnValue, outputStreamConsumer.getAllOutput()));
         }
 
+        // Keep master available for tests that explicitly select it.
+        createCommandLine("git").withEncoding(UTF_8).withWorkingDir(workingDir).withArgs("branch", "master").runOrBomb(true, new NamedProcessTag("git_branch"));
+
         createCommandLine("git").withEncoding(UTF_8).withWorkingDir(workingDir).withArgs("config", "user.name", "go_test").runOrBomb(true, new NamedProcessTag("git_config"));
         createCommandLine("git").withEncoding(UTF_8).withWorkingDir(workingDir).withArgs("config", "user.email", "go_test@go_test.me").runOrBomb(true, new NamedProcessTag("git_config"));
         createCommandLine("git").withEncoding(UTF_8).withWorkingDir(workingDir).withArgs("config", "commit.gpgSign", "false").runOrBomb(true, new NamedProcessTag("git_config"));

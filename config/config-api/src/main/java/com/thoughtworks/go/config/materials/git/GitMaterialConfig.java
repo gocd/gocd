@@ -32,7 +32,7 @@ public class GitMaterialConfig extends ScmMaterialConfig implements PasswordAwar
     public static final String TYPE = "GitMaterial";
     public static final String URL = "url";
     public static final String BRANCH = "branch";
-    public static final String DEFAULT_BRANCH = "master";
+    public static final String DEFAULT_BRANCH = "main";
     public static final String SHALLOW_CLONE = "shallowClone";
 
     @ConfigAttribute(value = "url")

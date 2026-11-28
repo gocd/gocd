@@ -57,7 +57,7 @@ class ConfigRepoConfigRepresenterV4Test {
           attributes: [
             name       : null,
             url        : TEST_REPO_URL,
-            branch     : "master",
+            branch     : "main",
             auto_update: true
           ]
         ],
@@ -100,7 +100,7 @@ class ConfigRepoConfigRepresenterV4Test {
             errors     : ["auto_update": ["Cannot be false."]],
             name       : null,
             url        : TEST_REPO_URL,
-            branch     : "master",
+            branch     : "main",
             auto_update: true
           ]
         ],
@@ -135,7 +135,7 @@ class ConfigRepoConfigRepresenterV4Test {
           attributes: [
             name       : null,
             url        : TEST_REPO_URL,
-            branch     : "master",
+            branch     : "main",
             auto_update: true
           ]
         ],
@@ -169,7 +169,7 @@ class ConfigRepoConfigRepresenterV4Test {
           attributes: [
             name       : null,
             url        : TEST_REPO_URL,
-            branch     : "master",
+            branch     : "main",
             auto_update: true
           ]
         ],
@@ -195,7 +195,7 @@ class ConfigRepoConfigRepresenterV4Test {
           attributes: [
             name       : null,
             url        : TEST_REPO_URL,
-            branch     : "master",
+            branch     : "main",
             auto_update: true
           ]
         ],

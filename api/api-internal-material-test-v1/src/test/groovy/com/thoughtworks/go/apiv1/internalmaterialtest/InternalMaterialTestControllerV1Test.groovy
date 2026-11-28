@@ -163,7 +163,7 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
               "invert_filter"   : false,
               "name"            : null,
               "auto_update"     : true,
-              "branch"          : "master",
+              "branch"          : "main",
               "submodule_folder": null,
               "shallow_clone"   : false
             ]

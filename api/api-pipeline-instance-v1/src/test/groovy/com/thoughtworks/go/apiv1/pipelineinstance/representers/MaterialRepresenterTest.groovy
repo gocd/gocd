@@ -28,9 +28,9 @@ class MaterialRepresenterTest {
 
     def expectedJSON = [
       name       : "git1",
-      fingerprint: "2fde537a026695884e2ee13e8f9730eca0610a3e407dbcc6bbce974f595c2f7c",
+      fingerprint: "8b750b14ff6789936bd28b8408c2e04f37661e7bbc7a017fe1a3c4bcd963407a",
       type       : "Git",
-      description: "URL: git1, Branch: master"
+      description: "URL: git1, Branch: main"
     ]
 
     def actualJson = toObjectString({ MaterialRepresenter.toJSON(it, material) })

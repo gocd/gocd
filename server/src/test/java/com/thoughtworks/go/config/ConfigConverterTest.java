@@ -433,7 +433,7 @@ class ConfigConverterTest {
         assertThat(gitMaterialConfig.isShallowClone()).isFalse();
         assertThat(gitMaterialConfig.filter()).isEqualTo(new Filter());
         assertThat(gitMaterialConfig.getUrl()).isEqualTo("url");
-        assertThat(gitMaterialConfig.getBranch()).isEqualTo("master");
+        assertThat(gitMaterialConfig.getBranch()).isEqualTo("main");
     }
 
     @Test
@@ -490,7 +490,7 @@ class ConfigConverterTest {
         assertThat(gitMaterialConfig.isShallowClone()).isFalse();
         assertThat(gitMaterialConfig.filter()).isEqualTo(new Filter());
         assertThat(gitMaterialConfig.getUrl()).isEqualTo("url");
-        assertThat(gitMaterialConfig.getBranch()).isEqualTo("master");
+        assertThat(gitMaterialConfig.getBranch()).isEqualTo("main");
     }
 
 
@@ -514,7 +514,7 @@ class ConfigConverterTest {
         Filter ignored = new Filter(new IgnoredFiles("filter"));
         assertThat(gitMaterialConfig.filter()).isEqualTo(ignored);
         assertThat(gitMaterialConfig.getUrl()).isEqualTo("url");
-        assertThat(gitMaterialConfig.getBranch()).isEqualTo("master");
+        assertThat(gitMaterialConfig.getBranch()).isEqualTo("main");
     }
 
     @Test
@@ -1520,7 +1520,7 @@ class ConfigConverterTest {
         assertThat(crGitMaterial.isAutoUpdate()).isTrue();
         assertThat(crGitMaterial.isShallowClone()).isFalse();
         assertThat(crGitMaterial.getUrl()).isEqualTo("url");
-        assertThat(crGitMaterial.getBranch()).isEqualTo("master");
+        assertThat(crGitMaterial.getBranch()).isEqualTo("main");
     }
 
     @Test

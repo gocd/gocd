@@ -35,6 +35,12 @@ import static org.mockito.Mockito.*;
 
 class GitMaterialConfigTest {
     @Test
+    void shouldDefaultToMainAndAllowAnExplicitMasterBranch() {
+        assertEquals("main", git("http://url").getBranch());
+        assertEquals("master", git("http://url", "master").getBranch());
+    }
+
+    @Test
     void shouldBePasswordAwareMaterial() {
         assertThat(PasswordAwareMaterial.class).isAssignableFrom(GitMaterialConfig.class);
     }
@@ -152,14 +158,14 @@ class GitMaterialConfigTest {
     void shouldHandleNullBranchWhileSettingConfigAttributes() {
         GitMaterialConfig gitMaterialConfig = git("http://url", "foo");
         gitMaterialConfig.setConfigAttributes(Collections.singletonMap(GitMaterialConfig.BRANCH, null));
-        assertEquals("master", gitMaterialConfig.getBranch());
+        assertEquals("main", gitMaterialConfig.getBranch());
     }
 
     @Test
     void shouldHandleEmptyBranchWhileSettingConfigAttributes() {
         GitMaterialConfig gitMaterialConfig = git("http://url", "foo");
         gitMaterialConfig.setConfigAttributes(Map.of(GitMaterialConfig.BRANCH, "     "));
-        assertEquals("master", gitMaterialConfig.getBranch());
+        assertEquals("main", gitMaterialConfig.getBranch());
     }
 
     @Nested

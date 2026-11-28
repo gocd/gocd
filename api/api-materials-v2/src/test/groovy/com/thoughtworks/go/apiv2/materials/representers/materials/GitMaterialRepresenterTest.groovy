@@ -60,7 +60,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait<GitMaterial
         invert_filter   : false,
         name            : null,
         auto_update     : true,
-        branch          : "master",
+        branch          : "main",
         submodule_folder: null,
         shallow_clone   : false
       ]
@@ -82,7 +82,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait<GitMaterial
         invert_filter   : false,
         name            : null,
         auto_update     : true,
-        branch          : "master",
+        branch          : "main",
         submodule_folder: null,
         shallow_clone   : false
       ]
@@ -100,7 +100,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait<GitMaterial
         invert_filter   : false,
         name            : "!nV@l!d",
         auto_update     : true,
-        branch          : "master",
+        branch          : "main",
         submodule_folder: "",
         shallow_clone   : false,
       ],

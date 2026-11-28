@@ -665,6 +665,7 @@ dependencyCheck {
   failBuildOnCVSS = 1
   failBuildOnUnusedSuppressionRule = true
   suppressionFile = rootProject.file('build-platform/dependency-check-suppress.xml').toPath().toString()
+  hintsFile = rootProject.file('build-platform/dependency-check-hints.xml').toPath().toString()
   skipTestGroups = true
   skipConfigurations = ['dependencyAnalysisKotlinMetadataClasspath']
 

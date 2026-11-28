@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright Thoughtworks, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<hints xmlns="https://jeremylong.github.io/DependencyCheck/dependency-hint.1.4.xsd"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://jeremylong.github.io/DependencyCheck/dependency-hint.1.4.xsd
+                           https://dependency-check.github.io/DependencyCheck/dependency-hint.1.4.xsd">
+  <hint>
+    <notes><![CDATA[
+    Internal GoCD modules don't need to be matched based on metadata like this.
+    ]]></notes>
+    <given>
+      <evidence type="vendor" name="groupid" value="com.thoughtworks.go"/>
+    </given>
+    <remove>
+      <evidence type="vendor" name="groupid" value=".*" regex="true"/>
+      <evidence type="vendor" name="artifactid" value=".*" regex="true"/>
+      <evidence type="vendor" name="name" value=".*" regex="true"/>
+      <evidence type="vendor" name="package name" value=".*" regex="true"/>
+      <evidence type="product" name="artifactid" value=".*" regex="true"/>
+      <evidence type="product" name="name" value=".*" regex="true"/>
+      <evidence type="product" name="package name" value=".*" regex="true"/>
+      <evidence type="product" name="Implementation-Title" value=".*" regex="true"/>
+    </remove>
+  </hint>
+  <hint>
+    <notes><![CDATA[
+    Plugins don't need to be matched based on metadata like this.
+    ]]></notes>
+    <given>
+      <evidence type="vendor" name="package name" value="go"/>
+    </given>
+    <remove>
+      <evidence type="vendor" name="name" value=".*" regex="true"/>
+      <evidence type="vendor" name="package name" value=".*" regex="true"/>
+      <evidence type="product" name="name" value=".*" regex="true"/>
+      <evidence type="product" name="package name" value=".*" regex="true"/>
+      <evidence type="product" name="Implementation-Title" value=".*" regex="true"/>
+    </remove>
+  </hint>
+</hints>

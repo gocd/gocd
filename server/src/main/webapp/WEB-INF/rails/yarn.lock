@@ -1924,12 +1924,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:>=10.0.0, @types/node@npm:^26.6.6":
+"@types/node@npm:*, @types/node@npm:>=10.0.0":
   version: 26.6.6
   resolution: "@types/node@npm:26.6.6"
   dependencies:
     undici-types: "npm:~8.9.0"
   checksum: 10c0/5cb63f644f6e85a257a9cd2403cbcbe196760e2a35fd3ec9fb8b5cff663e14cc832b198cc17b53f870a2e30900ed45a1fb3f53e6589aba26b8e8c484aa672053
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^26.6.10":
+  version: 26.6.10
+  resolution: "@types/node@npm:26.6.10"
+  dependencies:
+    undici-types: "npm:~8.9.0"
+  checksum: 10c0/d249c40c72ee1e61aeb9633263e5ebf428359206926a2ca12435cf7112e09a49aa5ef7a787e413fdf66b9ad8f41fb474eeb4e18e31e9b49a64033393e888ce56
   languageName: node
   linkType: hard
 
@@ -4406,7 +4415,7 @@ __metadata:
     "@types/license-checker": "npm:^25.0.6"
     "@types/lodash": "npm:^4.17.27"
     "@types/mithril": "npm:2.2.9"
-    "@types/node": "npm:^26.6.6"
+    "@types/node": "npm:^26.6.10"
     "@types/prismjs": "npm:^1.26.6"
     "@types/shell-quote": "npm:^1.7.5"
     "@types/underscore.string": "npm:^0.0.42"

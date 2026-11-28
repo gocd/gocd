@@ -44,6 +44,13 @@ class GoVersions implements Serializable {
   int buildJavaVersion
   AdoptiumVersion packagedJavaVersion
 
+  // Overrides keyed by "<os>-<arch>", for when the default version is not (yet) available for a platform
+  Map<String, AdoptiumVersion> packagedJavaVersionOverrides = [:]
+
+  AdoptiumVersion packagedJavaVersionFor(OperatingSystem os, Architecture arch) {
+    packagedJavaVersionOverrides["${os.name()}-${arch.canonicalName}".toString()] ?: packagedJavaVersion
+  }
+
   List<String> preferredJavaVersions() {
     [VERSION_21, VERSION_25, VERSION_29] // LTS versions
       .findAll { v -> v.ordinal() >= toVersion(targetJavaVersion).ordinal() && v.ordinal() <= toVersion(buildJavaVersion).ordinal() }

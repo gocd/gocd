@@ -47,6 +47,14 @@ SetCompress auto
   !error "INSTALLER_CONTENTS not defined!"
 !endif
 
+!ifndef JRE_X64_DIR
+  !error "JRE_X64_DIR not defined!"
+!endif
+
+!ifndef JRE_AARCH64_DIR
+  !error "JRE_AARCH64_DIR not defined!"
+!endif
+
 !ifndef ADDITIONAL_PLUGINS_DIR
   !error "ADDITIONAL_PLUGINS_DIR not defined!"
 !endif
@@ -59,6 +67,7 @@ SetCompress auto
 
 !include "MUI.nsh"
 !include "LogicLib.nsh"
+!include "x64.nsh"
 !include "debug.nsi"
 !include "message-helpers.nsi"
 !include "service-helpers.nsi"
@@ -186,11 +195,13 @@ Section "Install"
     Call BeforeUpgrade
     File /r ${GOCD_ICON}
     File /r /x "wrapper-properties.conf" ${INSTALLER_CONTENTS}\*.*
+    Call InstallJre
     Call AfterUpgrade
   ${Else}
     ${LogText} "Performing a fresh install"
     File /r ${GOCD_ICON}
     File /r /x "wrapper-properties.conf" ${INSTALLER_CONTENTS}\*.*
+    Call InstallJre
     Call PostInstall
   ${EndIf}
 
@@ -219,6 +230,18 @@ SectionEnd
 !macroend
 
 !insertmacro RemoveInstallerManagedFiles ""
+
+; Extract the JRE matching the native architecture of the machine, rather than that of this (x86) installer process
+Function "InstallJre"
+  SetOutPath $INSTDIR
+  ${If} ${IsNativeARM64}
+    ${LogText} "Installing aarch64 JRE"
+    File /r "${JRE_AARCH64_DIR}\*.*"
+  ${Else}
+    ${LogText} "Installing x64 JRE"
+    File /r "${JRE_X64_DIR}\*.*"
+  ${EndIf}
+FunctionEnd
 
 Function "SetupUninstaller"
   WriteUninstaller "uninstall.exe"

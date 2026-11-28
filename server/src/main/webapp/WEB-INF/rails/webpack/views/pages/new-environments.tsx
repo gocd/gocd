@@ -24,7 +24,7 @@ import {Environments, EnvironmentWithOrigin} from "models/new-environments/envir
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
 import {Permissions, SupportedEntity} from "models/shared/permissions";
 import {AnchorVM, ScrollManager} from "views/components/anchor/anchor";
-import {Primary} from "views/components/buttons";
+import {ButtonIcon, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
@@ -141,7 +141,7 @@ export class NewEnvironmentsPage extends Page<null, State> {
 
   headerPanel(vnode: m.Vnode<null, State>): any {
     const headerButtons = [];
-    headerButtons.push(<Primary dataTestId="add-environment-button" onclick={vnode.state.onAdd}>Add
+    headerButtons.push(<Primary icon={ButtonIcon.ADD} dataTestId="add-environment-button" onclick={vnode.state.onAdd}>Create
       Environment</Primary>);
     if (!_.isEmpty(this.environments())) {
       const searchBox = <div className={configRepoStyles.wrapperForSearchBox}>

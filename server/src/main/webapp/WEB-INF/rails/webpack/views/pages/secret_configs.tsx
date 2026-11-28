@@ -158,9 +158,10 @@ export class SecretConfigsPage extends Page<null, State> {
   protected headerPanel(vnode: m.Vnode<null, State>): any {
     const disabled = !vnode.state.pluginInfos || vnode.state.pluginInfos().length === 0;
     return <HeaderPanel title={this.pageName()}
-                        buttons={<Buttons.Primary data-test-id="add-secret-config"
+                        buttons={<Buttons.Primary icon={Buttons.ButtonIcon.ADD}
+                                                  data-test-id="add-secret-config"
                                                   disabled={disabled}
-                                                  onclick={vnode.state.onAdd.bind(this)}>Add</Buttons.Primary>}
+                                                  onclick={vnode.state.onAdd.bind(this)}>Create Secret Configuration</Buttons.Primary>}
                         help={this.helpText()}/>;
   }
 }

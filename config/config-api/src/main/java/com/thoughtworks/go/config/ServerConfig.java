@@ -67,6 +67,7 @@ public class ServerConfig implements Validatable {
 
     public static final String PURGE_START = "purgeStart";
     public static final String PURGE_UPTO = "purgeUpto";
+    public static final String PURGE_ARTIFACT_DIRECTORIES = "purgeArtifactDirectories";
     public static final String ARTIFACT_DIR = "artifactsDir";
 
 
@@ -291,6 +292,10 @@ public class ServerConfig implements Validatable {
 
     public boolean isArtifactPurgingAllowed() {
         return getPurgeStartDiskSpaceInGigabytes() != null && getPurgeUptoDiskSpaceInGigabytes() != null;
+    }
+
+    public boolean isArtifactDirectoryPurgingAllowed() {
+        return isArtifactPurgingAllowed() && artifactConfig.getPurgeSettings().isPurgeArtifactDirectories();
     }
 
     public void setPurgeLimits(Double purgeStart, Double purgeUpto) {

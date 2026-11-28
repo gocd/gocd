@@ -585,7 +585,7 @@
         WHERE builds.id = #{value}
     </select>
 
-    <select id="oldestStagesHavingArtifacts" resultMap="select-stage-with-identifier">
+    <sql id="selectStagesForArtifactCleanup">
         SELECT stages.id as stageId,
         stages.name as stageName,
         stages.counter as stageCounter,
@@ -611,7 +611,18 @@
         FROM stages
         INNER JOIN pipelines ON pipelines.id = stages.pipelineId
         LEFT OUTER JOIN stageArtifactCleanupProhibited prohibitedCheck on prohibitedCheck.pipelineName = pipelines.name AND prohibitedCheck.stageName = stages.name
+    </sql>
+
+    <select id="oldestStagesHavingArtifacts" resultMap="select-stage-with-identifier">
+        <include refid="selectStagesForArtifactCleanup"/>
         WHERE artifactsDeleted = FALSE AND (prohibitedCheck.prohibited = FALSE OR prohibitedCheck.id IS NULL) AND completedByTransitionId IS NOT NULL
+        ORDER BY stages.id ASC
+        LIMIT 100
+    </select>
+
+    <select id="oldestStagesHavingPurgedArtifacts" parameterType="long" resultMap="select-stage-with-identifier">
+        <include refid="selectStagesForArtifactCleanup"/>
+        WHERE artifactsDeleted = TRUE AND stages.id &gt; #{value} AND (prohibitedCheck.prohibited = FALSE OR prohibitedCheck.id IS NULL) AND completedByTransitionId IS NOT NULL
         ORDER BY stages.id ASC
         LIMIT 100
     </select>

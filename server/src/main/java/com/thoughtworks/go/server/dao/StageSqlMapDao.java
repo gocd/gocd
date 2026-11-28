@@ -687,6 +687,11 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     }
 
     @Override
+    public List<Stage> oldestStagesHavingPurgedArtifacts(long afterStageId) {
+        return getSqlMapClientTemplate().queryForList("oldestStagesHavingPurgedArtifacts", afterStageId);
+    }
+
+    @Override
     public void markArtifactsDeletedFor(Stage stage) {
         getSqlMapClientTemplate().update("markStageArtifactDeleted", nullableMapOf("stageId", stage.getId()));
     }

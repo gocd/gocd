@@ -48,6 +48,7 @@ export class ArtifactsManagementWidget extends MithrilViewComponent<ArtifactMana
                            onchange={() => {
                              artifactConfig.purgeSettings().purgeStartDiskSpace(undefined);
                              artifactConfig.purgeSettings().purgeUptoDiskSpace(undefined);
+                             artifactConfig.purgeSettings().purgeArtifactDirectories(false);
                            }}
                            value={true}
             />
@@ -68,6 +69,11 @@ export class ArtifactsManagementWidget extends MithrilViewComponent<ArtifactMana
                                                     .errors()
                                                     .errorsForDisplay("purgeUptoDiskSpace")}
                            dataTestId={"purge-upto-disk-space"}/>
+              <CheckboxField property={artifactConfig.purgeSettings().purgeArtifactDirectories}
+                             label={"Also cleanup console logs and directories"}
+                             helpText={"By default, auto cleanup only deletes the artifacts of a stage and keeps its console logs and directories forever. Select this to delete the entire directory of every stage that is cleaned up, including its console logs and the metadata of its external artifacts. The oldest stages are always cleaned up first, starting with those that had their artifacts cleaned up earlier."}
+                             readonly={!artifactConfig.cleanupArtifact()}
+                             dataTestId={"purge-artifact-directories"}/>
             </div>
           </Form>
         </div>

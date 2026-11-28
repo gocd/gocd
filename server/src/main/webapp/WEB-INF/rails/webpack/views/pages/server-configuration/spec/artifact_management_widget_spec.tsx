@@ -77,6 +77,52 @@ describe("ArtifactsManagementWidget", () => {
        expect(helper.byTestId("purge-upto-disk-space")).not.toBeDisabled();
      });
 
+  it("should render checkbox for cleanup of console logs and directories", () => {
+    const artifactConfig = new ArtifactConfig("foo", 10, 20);
+    mount(artifactConfig);
+
+    expect(helper.byTestId("purge-artifact-directories")).toBeInDOM();
+    expect(helper.byTestId("purge-artifact-directories")).not.toBeDisabled();
+    expect(helper.byTestId("purge-artifact-directories")).toHaveProp("checked", false);
+    expect(helper.byTestId("form-field-label-also-cleanup-console-logs-and-directories"))
+      .toContainText("Also cleanup console logs and directories");
+
+    helper.click(helper.byTestId("purge-artifact-directories"));
+
+    expect(helper.byTestId("purge-artifact-directories")).toHaveProp("checked", true);
+    expect(artifactConfigVM.entity().purgeSettings().purgeArtifactDirectories()).toBe(true);
+  });
+
+  it("should check checkbox for cleanup of console logs and directories - when it is configured", () => {
+    const artifactConfig = new ArtifactConfig("foo", 10, 20);
+    artifactConfig.purgeSettings().purgeArtifactDirectories(true);
+    mount(artifactConfig);
+
+    expect(helper.byTestId("purge-artifact-directories")).toHaveProp("checked", true);
+  });
+
+  it("should disable checkbox for cleanup of console logs and directories - when cleanup artifact is not selected", () => {
+    const artifactConfig = new ArtifactConfig("foo");
+    mount(artifactConfig);
+
+    expect(helper.byTestId("purge-artifact-directories")).toBeDisabled();
+    helper.click(helper.byTestId("form-field-input-allow-auto-cleanup-artifacts"));
+
+    expect(helper.byTestId("purge-artifact-directories")).not.toBeDisabled();
+  });
+
+  it("should not cleanup console logs and directories - when cleanup artifact is deselected", () => {
+    const artifactConfig = new ArtifactConfig("foo", 10, 20);
+    artifactConfig.purgeSettings().purgeArtifactDirectories(true);
+    mount(artifactConfig);
+
+    helper.click(helper.byTestId("form-field-input-allow-auto-cleanup-artifacts"));
+
+    expect(helper.byTestId("purge-artifact-directories")).toBeDisabled();
+    expect(helper.byTestId("purge-artifact-directories")).toHaveProp("checked", false);
+    expect(artifactConfigVM.entity().purgeSettings().purgeArtifactDirectories()).toBe(false);
+  });
+
   describe("Cancel", () => {
     it("should render cancel button", () => {
       mount(new ArtifactConfig("foo"));

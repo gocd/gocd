@@ -1558,6 +1558,57 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
+    void shouldAllowPurgeArtifactDirectoriesAttribute() {
+        String content = """
+            <cruise schemaVersion='%d'>
+            <server>
+            <artifacts>
+             <purgeSettings purgeArtifactDirectories="true">
+               <purgeStartDiskSpace>1</purgeStartDiskSpace>
+               <purgeUptoDiskSpace>3</purgeUptoDiskSpace>
+             </purgeSettings>
+            </artifacts>
+            </server>
+            </cruise>
+            """.formatted(GoConfigSchema.VERSION);
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
+        assertThat(cruiseConfig.server().isArtifactDirectoryPurgingAllowed()).isTrue();
+    }
+
+    @Test
+    void shouldNotPurgeArtifactDirectoriesUnlessSpecified() {
+        String content = """
+            <cruise schemaVersion='%d'>
+            <server>
+            <artifacts>
+             <purgeSettings>
+               <purgeStartDiskSpace>1</purgeStartDiskSpace>
+               <purgeUptoDiskSpace>3</purgeUptoDiskSpace>
+             </purgeSettings>
+            </artifacts>
+            </server>
+            </cruise>
+            """.formatted(GoConfigSchema.VERSION);
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
+        assertThat(cruiseConfig.server().isArtifactDirectoryPurgingAllowed()).isFalse();
+    }
+
+    @Test
+    void shouldNotAllowPurgeArtifactDirectoriesAttributeWithoutPurgeStartAndPurgeUpto() {
+        String content = """
+            <cruise schemaVersion='%d'>
+            <server>
+            <artifacts>
+             <purgeSettings purgeArtifactDirectories="true"/>
+            </artifacts>
+            </server>
+            </cruise>
+            """.formatted(GoConfigSchema.VERSION);
+        assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
+            .hasMessageContaining("Console logs and artifact directories can only be cleaned up when the trigger and goal values are specified");
+    }
+
+    @Test
     void shouldAllowNullPurgeStartAndEnd() {
         String content = """
             <cruise schemaVersion='%d'>

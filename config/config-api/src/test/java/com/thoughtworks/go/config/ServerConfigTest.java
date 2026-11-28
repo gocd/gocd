@@ -101,6 +101,16 @@ public class ServerConfigTest {
     }
 
     @Test
+    public void shouldAllowArtifactDirectoryPurgingOnlyIfArtifactPurgingIsAllowedAsWell() {
+        another = new ServerConfig("artifacts", new SecurityConfig(), 10.0, 20.0);
+        assertThat(another.isArtifactDirectoryPurgingAllowed()).isFalse();
+        another.getArtifactConfig().getPurgeSettings().setPurgeArtifactDirectories(true);
+        assertThat(another.isArtifactDirectoryPurgingAllowed()).isTrue();
+        another.setPurgeLimits(null, null);
+        assertThat(another.isArtifactDirectoryPurgingAllowed()).isFalse();
+    }
+
+    @Test
     public void shouldGetTheDefaultJobTimeoutValue() {
         assertThat(new ServerConfig("artifacts", new SecurityConfig(), 10.0, 20.0).getJobTimeout()).isEqualTo("0");
         assertThat(new ServerConfig("artifacts", new SecurityConfig(), 10.0, 20.0, "30").getJobTimeout()).isEqualTo("30");

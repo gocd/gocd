@@ -522,6 +522,7 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:gem/actionpack@.*$</packageUrl>
     <cve>CVE-2026-126067</cve>
+    <cve>CVE-2026-126072</cve>
     <cve>CVE-2026-126073</cve>
     <cve>CVE-2026-126076</cve>
     <cve>CVE-2026-126077</cve>

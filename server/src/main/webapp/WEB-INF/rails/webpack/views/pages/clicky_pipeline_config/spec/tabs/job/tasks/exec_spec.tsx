@@ -41,7 +41,7 @@ describe("Exec Task Modal", () => {
     expect(helper.byTestId("form-field-input-command")).toBeInDOM();
     expect(helper.byTestId("form-field-input-command")).toBeInDOM();
 
-    expect(helper.qa("span")[1]).toContainText(commandHelpText);
+    expect(helpTextFor("command")).toContainText(commandHelpText);
   });
 
   it("should bind command input to model", () => {
@@ -67,7 +67,101 @@ describe("Exec Task Modal", () => {
     expect(helper.byTestId("form-field-label-arguments")).toContainText("Arguments");
     expect(helper.byTestId("form-field-input-arguments")).toBeInDOM();
     expect(helper.byTestId("form-field-input-arguments")).toBeInDOM();
-    expect(helper.qa("span")[2]).toContainText(argumentsHelpText);
+    expect(helpTextFor("arguments")).toContainText(argumentsHelpText);
+    expect(helpTextFor("arguments")).toContainText("-c");
+    expect(helpTextFor("arguments")).toContainText("echo hello");
+  });
+
+  it("shows the argument boundaries without splitting spaces within an argument", () => {
+    mount(new ExecTask("bash", ["-c", "echo hello"], undefined, undefined, []));
+
+    expect(helper.textAll("[data-test-id='exec-arguments-preview'] li")).toEqual(['"-c"', '"echo hello"']);
+    expect(helper.byTestId("exec-combined-flag-argument-warning")).toBeNull();
+  });
+
+  it("suggests removing leading spaces and detects flags after those spaces", () => {
+    const task = new ExecTask("bash", ["  -c echo hello", " \tother argument"], undefined, undefined, []);
+    mount(task);
+
+    expect(helper.byTestId("exec-leading-spaces-warning")).toContainText("removed when you save");
+    expect(helper.textAll("[data-test-id='exec-arguments-preview'] li")).toEqual(['"-c echo hello"', '"other argument"']);
+    expect(helper.byTestId("exec-combined-flag-argument-warning")).toContainText("-c");
+    expect((task.attributes() as ExecTaskAttributes).arguments()).toEqual(["  -c echo hello", " \tother argument"]);
+
+    helper.click(helper.byTestId("remove-leading-spaces"));
+
+    expect((task.attributes() as ExecTaskAttributes).arguments()).toEqual(["-c echo hello", "other argument"]);
+    expect(helper.byTestId("exec-leading-spaces-warning")).toBeNull();
+    expect(helper.byTestId("exec-combined-flag-argument-warning")).toContainText("-c");
+  });
+
+  it("removes leading spaces from every argument line before saving", () => {
+    const task  = new ExecTask("bash", ["  -c", " \techo hello", "plain argument"], undefined, undefined, []);
+    const onAdd = jasmine.createSpy("onAdd").and.returnValue(Promise.resolve());
+    mount(task, true, false, onAdd);
+
+    expect(helper.byTestId("form-field-input-arguments")).toHaveValue("  -c\n \techo hello\nplain argument");
+
+    modal.addTaskAndSave();
+
+    expect((task.attributes() as ExecTaskAttributes).arguments()).toEqual(["-c", "echo hello", "plain argument"]);
+    expect(onAdd).toHaveBeenCalledWith(task);
+  });
+
+  it("warns about a combined bash -c argument and can split it", () => {
+    const task = new ExecTask("bash", ["-c echo hello"], undefined, undefined, []);
+    mount(task);
+
+    expect(helper.textAll("[data-test-id='exec-arguments-preview'] li")).toEqual(['"-c echo hello"']);
+    expect(helper.byTestId("exec-combined-flag-argument-warning")).toContainText("-c");
+
+    helper.click(helper.byTestId("split-flag-argument"));
+
+    expect((task.attributes() as ExecTaskAttributes).arguments()).toEqual(["-c", "echo hello"]);
+    expect(helper.byTestId("form-field-input-arguments")).toHaveValue("-c\necho hello");
+    expect(helper.byTestId("exec-combined-flag-argument-warning")).toBeNull();
+  });
+
+  it("offers to split a long flag after another argument for any command", () => {
+    const task = new ExecTask("my-tool", ["input.txt", "--output build dir"], undefined, undefined, []);
+    mount(task);
+
+    expect(helper.byTestId("exec-combined-flag-argument-warning")).toContainText("Argument 2");
+    expect(helper.byTestId("exec-combined-flag-argument-warning")).toContainText("--output");
+
+    helper.click(helper.byTestId("split-flag-argument"));
+
+    expect((task.attributes() as ExecTaskAttributes).arguments()).toEqual(["input.txt", "--output", "build dir"]);
+  });
+
+  it("offers to split before a flag embedded after other text on the same line", () => {
+    const task = new ExecTask("my-tool", ["input.txt --output build.dir"], undefined, undefined, []);
+    mount(task);
+
+    expect(helper.textAll("[data-test-id='exec-arguments-preview'] li")).toEqual(['"input.txt --output build.dir"']);
+    expect(helper.byTestId("exec-combined-flag-argument-warning")).toContainText("--output");
+    expect(helper.byTestId("split-flag-argument")).toContainText("Split at --output");
+
+    helper.click(helper.byTestId("split-flag-argument"));
+
+    expect((task.attributes() as ExecTaskAttributes).arguments()).toEqual(["input.txt", "--output", "build.dir"]);
+    expect(helper.byTestId("form-field-input-arguments")).toHaveValue("input.txt\n--output\nbuild.dir");
+    expect(helper.byTestId("exec-combined-flag-argument-warning")).toBeNull();
+  });
+
+  it("keeps a value joined to an embedded flag with an equals sign", () => {
+    const task = new ExecTask("my-tool", ["input.txt --output=build.dir"], undefined, undefined, []);
+    mount(task);
+
+    helper.click(helper.byTestId("split-flag-argument"));
+
+    expect((task.attributes() as ExecTaskAttributes).arguments()).toEqual(["input.txt", "--output=build.dir"]);
+  });
+
+  it("does not warn about spaces without a leading flag or a flag on its own line", () => {
+    mount(new ExecTask("echo", ["--", "-n", "hello world"], undefined, undefined, []));
+
+    expect(helper.byTestId("exec-combined-flag-argument-warning")).toBeNull();
   });
 
   it("should bind arguments input to model via array", () => {
@@ -97,7 +191,7 @@ describe("Exec Task Modal", () => {
     expect(helper.byTestId("form-field-label-arguments")).toContainText("Arguments");
     expect(helper.byTestId("form-field-input-arguments")).toBeInDOM();
     expect(helper.byTestId("form-field-input-arguments")).toBeInDOM();
-    expect(helper.qa("span")[2]).toContainText(argumentsHelpText);
+    expect(helpTextFor("arguments")).toContainText(argumentsHelpText);
   });
 
   it("should bind arguments input to model via string", () => {
@@ -126,7 +220,7 @@ describe("Exec Task Modal", () => {
     expect(helper.byTestId("form-field-label-working-directory")).toContainText("Working Directory");
     expect(helper.byTestId("form-field-input-working-directory")).toBeInDOM();
     expect(helper.byTestId("form-field-input-working-directory")).toBeInDOM();
-    expect(helper.qa("span")[3]).toContainText(buildFileHelpText);
+    expect(helpTextFor("working-directory")).toContainText(buildFileHelpText);
   });
 
   it("should bind working directory input to model", () => {
@@ -186,10 +280,16 @@ describe("Exec Task Modal", () => {
     });
   });
 
-  function mount(task?: Task | undefined, shouldShowOnCancel: boolean = true, readonly: boolean = false) {
+  function mount(task?: Task | undefined, shouldShowOnCancel: boolean = true, readonly: boolean = false,
+                 onAdd: (t: Task) => Promise<any> = () => Promise.resolve()) {
     helper.mount(() => {
-      modal = new ExecTaskModal(task, shouldShowOnCancel, jasmine.createSpy(), new PluginInfos(), readonly);
+      modal = new ExecTaskModal(task, shouldShowOnCancel, onAdd, new PluginInfos(), readonly);
       return modal.body();
     });
+  }
+
+  function helpTextFor(field: string) {
+    const helpTextId = helper.byTestId(`form-field-input-${field}`).getAttribute("aria-describedby");
+    return helper.q(`#${helpTextId}`);
   }
 });
